@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["vitest/globals"],
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
@@ -19,5 +20,5 @@
     "jsxFragmentFactory": "Fragment",
     "baseUrl": ".",
   },
-  "include": ["src"]
+  "include": ["setupTests.ts", "src"]
 }
