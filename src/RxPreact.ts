@@ -1,5 +1,38 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, ObservableInput, of, Subject, withLatestFrom } from 'rxjs';
+import { SpyInstanceFn } from 'vitest';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type Writeable<T> =
+    (T extends Subject<any> ? T :
+        (T extends Observable<infer C> ? Subject<C> :
+            (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
+                (T extends { [K in keyof T]: any } ? { [K in keyof T]: Writeable<T[K]> } :
+                    T
+                )
+            )
+        )
+    );
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+export function useEventCallback<T, A extends any[]>(
+    callback: (event: T, ...args: A) => void,
+    read: { [K in keyof A] : ObservableInput<A[K]> },
+    inputs?: unknown[]
+) {
+    const events = new Subject<T>();
+
+    useEffect(() => {
+        const sub = events.pipe(withLatestFrom<T, A>(...read))
+            .subscribe((values) => {
+                callback(...values);
+            });
+
+        return () => sub.unsubscribe();
+    }, inputs);
+
+    return (event: T) => () => events.next(event);
+}
 
 const NO_VALUE = 'RxReactNoValue';
 
