@@ -1,0 +1,19 @@
+{
+    "name": "sudoku-preact-rxjs",
+
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "sudoku-preact-rxjs",
+    "workspaceFolder": "/app",
+
+    "extensions": [
+        "editorconfig.editorconfig",
+        "dbaeumer.vscode-eslint",
+    ],
+
+    // "forwardPorts": [],
+
+    // "postCreateCommand": "",
+    // "postStartCommand": "",
+
+    // "remoteUser": "vscode"
+}
