@@ -1,0 +1,23 @@
+/* App container */
+#root {
+  --font-size-divisor: 9.5;
+  font-family: serif;
+  font-size: min(calc(80vh / var(--font-size-divisor)), calc(100vw / var(--font-size-divisor)));
+  height: 100vh;
+  max-width: 70vh;
+  margin: 0 auto;
+}
+
+.SudokuReact {
+  touch-action: manipulation;
+
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.ButtonBar {
+  text-align: center;
+}

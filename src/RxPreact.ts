@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { firstValueFrom, Observable, ObservableInput, of, Subject, withLatestFrom } from 'rxjs';
 import { SpyInstanceFn } from 'vitest';
 
@@ -29,7 +29,7 @@ export function useEventCallback<T, A extends any[]>(
     read: { [K in keyof A] : ObservableInput<A[K]> },
     inputs?: unknown[]
 ) {
-    const events = new Subject<T>();
+    const events = useMemo(() => new Subject<T>(), inputs);
 
     useEffect(() => {
         const sub = events.pipe(withLatestFrom<T, A>(...read))

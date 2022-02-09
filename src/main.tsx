@@ -1,5 +1,5 @@
-import { render } from 'preact'
-import { App } from './app'
-import './index.css'
+import { render } from 'preact';
+import 'src/index.css';
+import SudokuApp from 'src/SudokuApp';
 
-render(<App />, document.getElementById('app')!)
+render(<SudokuApp />, document.getElementById('root')!);
