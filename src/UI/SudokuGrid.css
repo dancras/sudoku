@@ -1,8 +1,8 @@
 .SudokuGrid {
   --border-color: var(--purple);
   --background-color: var(--dark-grey);
-  --contents-color: var(--yellow);
-  --candidate-color: var(--green);
+  --contents-color: var(--green);
+  --candidate-color: var(--yellow);
   --error-color: var(--red);
   --locked-color: var(--orange);
   --zebra-vertical: rgb(37, 35, 38);
@@ -31,10 +31,6 @@
 
 .SudokuGrid .--Cell.-ShowingCandidates .--Contents {
   display: none;
-}
-
-.SudokuGrid .-Invalid .--Contents, .SudokuGrid .-Invalid .--Candidate {
-  color: var(--error-color);
 }
 
 .SudokuGrid .-Locked .--Contents {
@@ -68,6 +64,10 @@
 .SudokuGrid .--Candidate {
   flex-basis: calc(100% / 3);
   color: var(--candidate-color);
+}
+
+.SudokuGrid .-Invalid .--Contents, .SudokuGrid .--Candidate.-Invalid {
+  color: var(--error-color);
 }
 
 .SudokuGrid .--Cell {
