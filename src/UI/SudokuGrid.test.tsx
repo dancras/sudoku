@@ -3,34 +3,42 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'preact';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Writeable } from 'src/RxPreact';
-import SudokuGrid, { SudokuCell, SudokuGameStatus, SudokuGridContext } from 'src/UI/SudokuGrid';
+import { Answer, MapValidsNumberTo, SudokuCell, ValidNumber } from 'src/Sudoku';
 import { createTestProvider } from 'src/Test/TestContext';
+import SudokuGrid, { SudokuGameStatus, SudokuGridContext } from 'src/UI/SudokuGrid';
 
 let TestProvider: FunctionComponent;
 
-let selectedNumber$: Subject<number>;
+let selectedNumber$: Subject<ValidNumber>;
 let sudokuGrid: Writeable<SudokuCell>[];
 let status$: Subject<SudokuGameStatus>;
 
 beforeEach(() => {
     sudokuGrid = Array.from({ length: 81 }).map(() => ({
-        contents$: new BehaviorSubject(null),
+        contents$: new BehaviorSubject<Answer | null>(null),
         candidates: {
-            1: new BehaviorSubject(null),
-            9: new BehaviorSubject(null)
-        },
+            1: new BehaviorSubject<boolean | null>(null),
+            2: new BehaviorSubject<boolean | null>(null),
+            3: new BehaviorSubject<boolean | null>(null),
+            4: new BehaviorSubject<boolean | null>(null),
+            5: new BehaviorSubject<boolean | null>(null),
+            6: new BehaviorSubject<boolean | null>(null),
+            7: new BehaviorSubject<boolean | null>(null),
+            8: new BehaviorSubject<boolean | null>(null),
+            9: new BehaviorSubject<boolean | null>(null)
+        } as MapValidsNumberTo<Subject<boolean | null>>,
         isLocked$: new BehaviorSubject(false),
         toggleContents: vi.fn(),
         toggleCandidate: vi.fn()
     } as Writeable<SudokuCell>));
 
-    selectedNumber$ = new BehaviorSubject(1);
+    selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Solving);
 
     [TestProvider] = createTestProvider(SudokuGridContext, {
         selectedNumber$,
         sudokuGrid,
-        game: { status$ }
+        app: { status$ }
     });
 
     render(

@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import { ValidNumber, MapValidsNumberTo, VALID_NUMBERS } from 'src/Sudoku/Sudoku';
+import { MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 
 export default class GridCell {
     contents$: BehaviorSubject<ValidNumber | null>;

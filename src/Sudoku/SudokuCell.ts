@@ -1,9 +1,7 @@
 import { combineLatest, map, Observable, of, switchMap } from 'rxjs';
+import { Answer, MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
-import { MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku/Sudoku';
-
-export type Answer = [ValidNumber, boolean];
 
 export default class SudokuCell {
     private gridCell: GridCell;

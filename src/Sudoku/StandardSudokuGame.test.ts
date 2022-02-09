@@ -1,6 +1,6 @@
 import { peek } from 'src/RxPreact';
+import { ValidNumber } from 'src/Sudoku';
 import StandardSudokuGrid from 'src/Sudoku/StandardSudokuGame';
-import { ValidNumber } from 'src/Sudoku/Sudoku';
 
 test('it has 81 cells', () => {
     const grid = new StandardSudokuGrid();

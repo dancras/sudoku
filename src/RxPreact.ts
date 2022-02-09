@@ -6,9 +6,11 @@ import { SpyInstanceFn } from 'vitest';
 export type Writeable<T> =
     (T extends Subject<any> ? T :
         (T extends Observable<infer C> ? Subject<C> :
-            (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
-                (T extends { [K in keyof T]: any } ? { [K in keyof T]: Writeable<T[K]> } :
-                    T
+            (T extends Array<infer C> ? Array<Writeable<C>> :
+                (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
+                    (T extends { [K in keyof T]: any } ? { [K in keyof T]: Writeable<T[K]> } :
+                        T
+                    )
                 )
             )
         )

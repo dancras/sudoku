@@ -1,7 +1,7 @@
 import { combineLatest, defaultIfEmpty, map, merge, mergeMap, Observable, of, scan, skip, take, withLatestFrom } from 'rxjs';
+import { VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
-import { VALID_NUMBERS } from 'src/Sudoku/Sudoku';
 import SudokuCell from 'src/Sudoku/SudokuCell';
 
 const BLOCK_TOP_LEFT_INDEXES = [0, 3, 6, 27, 30, 33, 54, 57, 60];

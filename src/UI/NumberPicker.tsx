@@ -2,12 +2,11 @@ import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { BehaviorSubject } from 'rxjs';
 import { useObservable } from 'src/RxPreact';
+import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import 'src/UI/NumberPicker.css';
 
-export const NUMBER_PICKER_OPTIONS: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 export const NumberPickerContext = createContext({
-    selectedNumber$: new BehaviorSubject<number>(0)
+    selectedNumber$: new BehaviorSubject<ValidNumber>(1)
 });
 
 export interface NumberPickerStyle extends JSX.CSSProperties {
@@ -26,7 +25,7 @@ export default function NumberPicker() {
                  data-testid="number-picker-selection"
             ></div>
             <ul className="--Values">
-                {NUMBER_PICKER_OPTIONS.map(x =>
+                {VALID_NUMBERS.map(x =>
                     <li key={x}
                         onClick={() => selectedNumber$.next(x)}
                         style={{ '--value': x } as NumberPickerStyle}

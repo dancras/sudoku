@@ -2,17 +2,8 @@ import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { Observable, of } from 'rxjs';
 import { useEventCallback, useObservable } from 'src/RxPreact';
+import { SudokuCell, ValidNumber } from 'src/Sudoku';
 import 'src/UI/SudokuGrid.css';
-
-export type Answer = [number, boolean];
-
-export type SudokuCell = {
-    contents$: Observable<Answer | null>,
-    candidates: Record<number, Observable<boolean | null>>,
-    isLocked$: Observable<boolean>,
-    toggleContents: (contents: number) => void,
-    toggleCandidate: (contents: number) => void
-}
 
 export enum SudokuGameStatus {
     Creating,
@@ -20,14 +11,14 @@ export enum SudokuGameStatus {
     Solved
 }
 
-export type SudokuGame = {
+export type SudokuApp = {
     status$: Observable<SudokuGameStatus>
 }
 
 export const SudokuGridContext = createContext({
-    selectedNumber$: of(1),
+    selectedNumber$: of(1) as Observable<ValidNumber>,
     sudokuGrid: [] as SudokuCell[],
-    game: { status$: of(0) } as SudokuGame
+    app: { status$: of(0) } as SudokuApp
 });
 
 enum CellEvents {
@@ -36,23 +27,23 @@ enum CellEvents {
 }
 
 export default function SudokuGrid() {
-    const { selectedNumber$, sudokuGrid, game } = useContext(SudokuGridContext);
+    const { selectedNumber$, sudokuGrid, app } = useContext(SudokuGridContext);
 
     return (
         <div className="SudokuGrid" data-testid="sudoku-grid">
             {sudokuGrid.map((cell, i) =>
-                <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} game={game} />
+                <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} app={app} />
             )}
         </div>
     );
 }
 
-function Cell({ cell, selectedNumber$, game }: { cell: SudokuCell, selectedNumber$: Observable<number>, game: SudokuGame }) {
+function Cell({ cell, selectedNumber$, app }: { cell: SudokuCell, selectedNumber$: Observable<ValidNumber>, app: SudokuApp }) {
 
     const isLocked = useObservable(cell.isLocked$);
     const [contents, isValid] = useObservable(cell.contents$) || [null, true];
 
-    const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber, status) => {
+    const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber: ValidNumber, status) => {
         if (isLocked) {
             return;
         } else if (
@@ -63,7 +54,7 @@ function Cell({ cell, selectedNumber$, game }: { cell: SudokuCell, selectedNumbe
         } else if (status === SudokuGameStatus.Solving && cellEvent === CellEvents.Click) {
             cell.toggleCandidate(selectedNumber);
         }
-    }, [selectedNumber$, game.status$], [isLocked]);
+    }, [selectedNumber$, app.status$], [isLocked]);
 
     return (
         <div className={`--Cell ${isLocked ? '-Locked' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}

@@ -2,14 +2,15 @@ import { render, screen } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'preact';
 import { BehaviorSubject } from 'rxjs';
+import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { createTestProvider } from 'src/Test/TestContext';
-import NumberPicker, { NumberPickerContext, NUMBER_PICKER_OPTIONS } from 'src/UI/NumberPicker';
+import NumberPicker, { NumberPickerContext } from 'src/UI/NumberPicker';
 
 let TestProvider: FunctionComponent;
 
 beforeEach(() => {
     [TestProvider] = createTestProvider(NumberPickerContext, {
-        selectedNumber$: new BehaviorSubject(1)
+        selectedNumber$: new BehaviorSubject<ValidNumber>(1)
     });
 
     render(
@@ -21,7 +22,7 @@ beforeEach(() => {
 
 
 test('numbers 1 to 9 are displayed', () => {
-    NUMBER_PICKER_OPTIONS.forEach(x => expect(screen.getByText(x)).toBeInTheDocument());
+    VALID_NUMBERS.forEach(x => expect(screen.getByText(x)).toBeInTheDocument());
 });
 
 

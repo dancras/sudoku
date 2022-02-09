@@ -1,6 +1,6 @@
 import { combineLatest, map, Observable } from 'rxjs';
+import { MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
-import { MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku/Sudoku';
 
 export default class GridSlice {
     occurrences: MapValidsNumberTo<Observable<number>>;
