@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { firstValueFrom, Observable, ObservableInput, of, Subject, withLatestFrom } from 'rxjs';
 import { SpyInstanceFn } from 'vitest';
 
@@ -15,6 +15,13 @@ export type Writeable<T> =
     );
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+export function peek<T>(target: Observable<T>): T | undefined {
+    let value: T | undefined;
+    target.subscribe(v => value = v).unsubscribe();
+    return value;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useEventCallback<T, A extends any[]>(
     callback: (event: T, ...args: A) => void,
     read: { [K in keyof A] : ObservableInput<A[K]> },
@@ -39,6 +46,7 @@ const NO_VALUE = 'RxReactNoValue';
 export function useObservable<T>($source: Observable<T>): T {
     const sourceRef = useRef<Observable<T> | null>(null);
     // T | 'RxReactNoValue'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let initialValue: any = NO_VALUE;
     let returnInitialValue = false;
 
