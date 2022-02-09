@@ -3,9 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'preact';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Writeable } from 'src/RxPreact';
-import { Answer, MapValidsNumberTo, SudokuCell, ValidNumber } from 'src/Sudoku';
+import { Answer, createSudokuGame, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createTestProvider } from 'src/Test/TestContext';
-import SudokuGrid, { SudokuGameStatus, SudokuGridContext } from 'src/UI/SudokuGrid';
+import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
 let TestProvider: FunctionComponent;
 
@@ -16,17 +17,9 @@ let status$: Subject<SudokuGameStatus>;
 beforeEach(() => {
     sudokuGrid = Array.from({ length: 81 }).map(() => ({
         contents$: new BehaviorSubject<Answer | null>(null),
-        candidates: {
-            1: new BehaviorSubject<boolean | null>(null),
-            2: new BehaviorSubject<boolean | null>(null),
-            3: new BehaviorSubject<boolean | null>(null),
-            4: new BehaviorSubject<boolean | null>(null),
-            5: new BehaviorSubject<boolean | null>(null),
-            6: new BehaviorSubject<boolean | null>(null),
-            7: new BehaviorSubject<boolean | null>(null),
-            8: new BehaviorSubject<boolean | null>(null),
-            9: new BehaviorSubject<boolean | null>(null)
-        } as MapValidsNumberTo<Subject<boolean | null>>,
+        candidates: VALID_NUMBERS.reduce((acc, i) => Object.assign(acc, {
+            [i]: new BehaviorSubject<boolean | null>(null),
+        }), {}) as MapValidsNumberTo<Subject<boolean | null>>,
         isLocked$: new BehaviorSubject(false),
         toggleContents: vi.fn(),
         toggleCandidate: vi.fn()
@@ -38,7 +31,12 @@ beforeEach(() => {
     [TestProvider] = createTestProvider(SudokuGridContext, {
         selectedNumber$,
         sudokuGrid,
-        app: { status$ }
+        app: {
+            status$,
+            game$: new BehaviorSubject(createSudokuGame()),
+            canStart$: new BehaviorSubject<boolean>(false),
+            startGame: vi.fn()
+        } as Writeable<SudokuApp>
     });
 
     render(

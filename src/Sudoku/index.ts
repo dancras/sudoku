@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import StandardSudokuGame from 'src/Sudoku/StandardSudokuGame';
 
 export const VALID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export type ValidNumber = typeof VALID_NUMBERS[number]
@@ -25,4 +26,8 @@ export type SudokuCell = {
     isLocked$: Observable<boolean>;
     toggleContents(contents: ValidNumber | null): void;
     toggleCandidate(candidate: ValidNumber): void;
+}
+
+export function createSudokuGame(): SudokuGame {
+    return new StandardSudokuGame();
 }

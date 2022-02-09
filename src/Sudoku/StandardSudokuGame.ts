@@ -35,7 +35,7 @@ export default class StandardSudokuGame {
                 rows[getRowIndex(i)],
                 columns[getColumnIndex(i)],
                 blocks[getBlockIndex(i)]
-            ]));
+            ], Promise.resolve()));
 
         const totalCountChanges = this.cells.map(cell => merge(
             cell.contents$.pipe(

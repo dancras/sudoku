@@ -1,25 +1,15 @@
-import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
-import { Observable, of } from 'rxjs';
-import { useEventCallback, useObservable } from 'src/RxPreact';
+import { Observable } from 'rxjs';
+import { defineDependencies, useEventCallback, useObservable } from 'src/RxPreact';
 import { SudokuCell, ValidNumber } from 'src/Sudoku';
+import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import 'src/UI/SudokuGrid.css';
 
-export enum SudokuGameStatus {
-    Creating,
-    Solving,
-    Solved
-}
-
-export type SudokuApp = {
-    status$: Observable<SudokuGameStatus>
-}
-
-export const SudokuGridContext = createContext({
-    selectedNumber$: of(1) as Observable<ValidNumber>,
-    sudokuGrid: [] as SudokuCell[],
-    app: { status$: of(0) } as SudokuApp
-});
+export const SudokuGridContext = defineDependencies<{
+    selectedNumber$: Observable<ValidNumber>
+    sudokuGrid: SudokuCell[]
+    app: SudokuApp
+}>();
 
 enum CellEvents {
     Click,

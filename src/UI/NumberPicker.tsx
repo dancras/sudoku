@@ -1,13 +1,12 @@
-import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { BehaviorSubject } from 'rxjs';
-import { useObservable } from 'src/RxPreact';
+import { defineDependencies, useObservable } from 'src/RxPreact';
 import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import 'src/UI/NumberPicker.css';
 
-export const NumberPickerContext = createContext({
-    selectedNumber$: new BehaviorSubject<ValidNumber>(1)
-});
+export const NumberPickerContext = defineDependencies<{
+    selectedNumber$: BehaviorSubject<ValidNumber>
+}>();
 
 export interface NumberPickerStyle extends JSX.CSSProperties {
     '--selected'?: number;

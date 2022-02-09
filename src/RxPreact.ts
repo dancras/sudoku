@@ -1,3 +1,4 @@
+import { Context, createContext } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { firstValueFrom, Observable, ObservableInput, of, Subject, withLatestFrom } from 'rxjs';
 import { SpyInstanceFn } from 'vitest';
@@ -16,6 +17,14 @@ export type Writeable<T> =
         )
     );
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export function defineDependencies<T>(): Context<T> {
+    return createContext<T>(new Proxy({}, {
+        get() {
+            throw new Error('Missing Context dependencies');
+        }
+    }) as T);
+}
 
 export function peek<T>(target: Observable<T>): T | undefined {
     let value: T | undefined;

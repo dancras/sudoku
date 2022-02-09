@@ -1,5 +1,6 @@
 import { render } from 'preact';
+import AppMain from 'src/AppMain';
 import 'src/index.css';
-import SudokuApp from 'src/SudokuApp';
 
-render(<SudokuApp />, document.getElementById('root')!);
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+render(<AppMain />, document.getElementById('root')!);
