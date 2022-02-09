@@ -1,20 +1,28 @@
 .SudokuGrid {
-  --black: #090909;
-
+  --border-color: var(--purple);
+  --background-color: var(--dark-grey);
+  --contents-color: var(--yellow);
+  --candidate-color: var(--green);
+  --error-color: var(--red);
+  --locked-color: var(--orange);
+  --zebra-vertical: rgb(37, 35, 38);
   user-select: none;
 
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-
-  border: 3px solid var(--black);
+  border: 3px solid var(--border-color);
 }
 
-.SudokuGrid .-Invalid {
-  color: red;
+@media (orientation: portrait) {
+  .SudokuGrid {
+    border-left: 0;
+    border-right: 0;
+  }
 }
 
-.SudokuGrid .-Locked {
-  color: grey;
+.SudokuGrid .--Cell {
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--background-color);
 }
 
 .SudokuGrid .--Cell > div {
@@ -25,8 +33,17 @@
   display: none;
 }
 
+.SudokuGrid .-Invalid .--Contents, .SudokuGrid .-Invalid .--Candidate {
+  color: var(--error-color);
+}
+
+.SudokuGrid .-Locked .--Contents {
+  color: var(--locked-color);
+}
+
 .SudokuGrid .--Contents {
   font-size: 0.9em;
+  color: var(--contents-color);
 }
 
 .SudokuGrid .--Candidates {
@@ -41,6 +58,7 @@
 .SudokuGrid .--Candidate {
   width: calc(100% / 3);
   height: calc(100% / 3);
+  color: var(--candidate-color);
 }
 
 .SudokuGrid .--Cell.-ShowingContents .--Candidates {
@@ -49,6 +67,7 @@
 
 .SudokuGrid .--Candidate {
   flex-basis: calc(100% / 3);
+  color: var(--candidate-color);
 }
 
 .SudokuGrid .--Cell {
@@ -56,8 +75,8 @@
   align-items: center;
 
   text-align: center;
-  border-right: 1px solid var(--black);
-  border-bottom: 1px solid var(--black);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .SudokuGrid .--Cell::before {
@@ -66,8 +85,9 @@
   width: 0px;
 }
 
+/* Borders */
 .SudokuGrid .--Cell:nth-child(3n) {
-  border-right: 2px solid var(--black);
+  border-right: 2px solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(9n) {
@@ -75,13 +95,18 @@
 }
 
 .SudokuGrid .--Cell:nth-child(n + 19):nth-child(-n + 27) {
-  border-bottom: 2px solid var(--black);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(n + 46):nth-child(-n + 54) {
-  border-bottom: 2px solid var(--black);
+  border-bottom: 2px solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(n + 73) {
   border-bottom: none;
+}
+
+/* Zebra Stripes */
+.SudokuGrid .--Cell:nth-child(3n + 2) {
+  background-color: var(--zebra-vertical);
 }

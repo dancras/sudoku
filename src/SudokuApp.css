@@ -1,14 +1,27 @@
 /* App container */
+body {
+  background-color: rgb(44, 41, 45);
+}
+
 #root {
   --font-size-divisor: 9.5;
-  font-family: serif;
+  font-family: monospace;
   font-size: min(calc(80vh / var(--font-size-divisor)), calc(100vw / var(--font-size-divisor)));
   height: 100vh;
   max-width: 70vh;
   margin: 0 auto;
 }
 
-.SudokuReact {
+.SudokuApp {
+  --orange: rgb(238, 157, 112);
+  --purple: rgb(168, 157, 234);
+  --yellow: rgb(249, 218, 120);
+  --grey: rgb(114, 112, 114);
+  --dark-grey: rgb(44, 41, 45);
+  --light-grey: rgb(232, 229, 225);
+  --green: rgb(179, 219, 130);
+  --red: rgb(237, 108, 137);
+  --blue: rgb(145, 218, 230);
   touch-action: manipulation;
 
   height: 100vh;
