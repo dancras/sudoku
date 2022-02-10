@@ -1,6 +1,6 @@
+import { act } from '@testing-library/preact';
 import { Context, RenderableProps } from 'preact';
 import { useContext, useState } from 'preact/hooks';
-import { act } from '@testing-library/preact';
 
 export type ContextValue<T> = T extends Context<infer V> ? V : never;
 export type SetContext<T> = (value: ContextValue<T>) => void;
@@ -8,7 +8,7 @@ export type SetContext<T> = (value: ContextValue<T>) => void;
 export function createTestProvider<T>(Context: Context<T>, defaultValue?: T) {
     let setContextValueReference: (value: T) => void;
 
-    function setContextValue(value: T) {
+    async function setContextValue(value: T) {
         act(() => {
             setContextValueReference(value);
         });
@@ -18,7 +18,7 @@ export function createTestProvider<T>(Context: Context<T>, defaultValue?: T) {
         const [value, setValue] = useState<T | undefined>(defaultValue);
         setContextValueReference = setValue;
         return !value ? <></> : (
-            <Context.Provider value={value}>
+            <Context.Provider value={ value }>
                 { children }
             </Context.Provider>
         );
