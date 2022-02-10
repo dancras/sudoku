@@ -30,11 +30,10 @@ export default function SudokuGrid() {
 
 function Cell({ cell, selectedNumber$, app }: { cell: SudokuCell, selectedNumber$: Observable<ValidNumber>, app: SudokuApp }) {
 
-    const isLocked = useObservable(cell.isLocked$);
     const [contents, isValid] = useObservable(cell.contents$) || [null, true];
 
     const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber: ValidNumber, status) => {
-        if (isLocked) {
+        if (cell.isLocked) {
             return;
         } else if (
             status === SudokuGameStatus.Creating && cellEvent === CellEvents.Click ||
@@ -44,10 +43,10 @@ function Cell({ cell, selectedNumber$, app }: { cell: SudokuCell, selectedNumber
         } else if (status === SudokuGameStatus.Solving && cellEvent === CellEvents.Click) {
             cell.toggleCandidate(selectedNumber);
         }
-    }, [selectedNumber$, app.status$], [isLocked]);
+    }, [selectedNumber$, app.status$], [cell.isLocked]);
 
     return (
-        <div className={`--Cell ${isLocked ? '-Locked' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}
+        <div className={`--Cell ${cell.isLocked ? '-Locked' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}
              onClick={notifies(CellEvents.Click)}
              onDblClick={notifies(CellEvents.DblClick)}
         >

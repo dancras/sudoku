@@ -5,14 +5,24 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { Writeable } from 'src/RxPreact';
 import { Answer, createSudokuGame, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
-import { createTestProvider } from 'src/Test/TestContext';
+import { ContextValue, createTestProvider } from 'src/Test/TestContext';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
 let TestProvider: FunctionComponent;
+let setContextValue: (value: typeof contextValue) => void;
 
 let selectedNumber$: Subject<ValidNumber>;
 let sudokuGrid: Writeable<SudokuCell>[];
 let status$: Subject<SudokuGameStatus>;
+let contextValue: Writeable<ContextValue<typeof SudokuGridContext>>;
+
+function setIsLocked(i: number, value: boolean) {
+    contextValue.sudokuGrid[i] = { ...contextValue.sudokuGrid[i],
+        isLocked: value
+    };
+    contextValue.sudokuGrid = [...contextValue.sudokuGrid];
+    setContextValue({ ...contextValue });
+}
 
 beforeEach(() => {
     sudokuGrid = Array.from({ length: 81 }).map(() => ({
@@ -20,7 +30,7 @@ beforeEach(() => {
         candidates: VALID_NUMBERS.reduce((acc, i) => Object.assign(acc, {
             [i]: new BehaviorSubject<boolean | null>(null),
         }), {}) as MapValidsNumberTo<Subject<boolean | null>>,
-        isLocked$: new BehaviorSubject(false),
+        isLocked: false,
         toggleContents: vi.fn(),
         toggleCandidate: vi.fn()
     } as Writeable<SudokuCell>));
@@ -28,7 +38,7 @@ beforeEach(() => {
     selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Solving);
 
-    [TestProvider] = createTestProvider(SudokuGridContext, {
+    [TestProvider, setContextValue] = createTestProvider(SudokuGridContext, contextValue = {
         selectedNumber$,
         sudokuGrid,
         app: {
@@ -108,14 +118,12 @@ test('cell has -ShowingCandidates class when it has no contents to show', () => 
     expect(firstCell?.className).not.toContain('-ShowingCandidates');
 });
 
-test('cell has -Locked class when it is locked', () => {
+test('cell has -Locked class when it is locked', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     expect(firstCell?.className).not.toContain('-Locked');
 
-    act(() => {
-        sudokuGrid[0].isLocked$.next(true);
-    });
+    await setIsLocked(0, true);
 
     expect(firstCell?.className).toContain('-Locked');
 });
@@ -203,12 +211,10 @@ test('cell clicks disabled when SudokuGameStatus.Solved', () => {
     expect(sudokuGrid[0].toggleCandidate).not.toHaveBeenCalled();
 });
 
-test('cell clicks disabled when cell is locked', () => {
+test('cell clicks disabled when cell is locked', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
-    act(() => {
-        sudokuGrid[0].isLocked$.next(true);
-    });
+    await setIsLocked(0, true);
 
     firstCell && userEvent.click(firstCell);
     firstCell && userEvent.dblClick(firstCell);
