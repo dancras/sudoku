@@ -1,4 +1,3 @@
-import { lastValueFrom } from 'rxjs';
 import { peek } from 'src/RxPreact';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
@@ -34,13 +33,13 @@ describe('SudokuCell', () => {
         gridCells = Array.from({ length: 9 }).map(() => new GridCell());
         gridCell = gridCells[0];
         gridSlice = new GridSlice(gridCells);
-        sudokuCell = new SudokuCell(gridCell, [gridSlice], Promise.resolve());
+        sudokuCell = new SudokuCell(gridCell, [gridSlice], false);
     });
 
     test('contents$ is the value from underlying grid cell and whether it is valid', () => {
         gridCell.contents$.next(9);
 
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], Promise.resolve());
+        const sudokuCell = new SudokuCell(gridCell, [gridSlice], false);
 
         expect(peek(sudokuCell.contents$)).toEqual([9, true]);
     });
@@ -57,7 +56,7 @@ describe('SudokuCell', () => {
     });
 
     test('contents$ is marked as invalid even if another GridSlice is valid ', () => {
-        const cell = new SudokuCell(gridCell, [new GridSlice([gridCell]), gridSlice], Promise.resolve());
+        const cell = new SudokuCell(gridCell, [new GridSlice([gridCell]), gridSlice], false);
 
         gridCells[1].contents$.next(5);
         cell.toggleContents(5);
@@ -109,36 +108,8 @@ describe('SudokuCell', () => {
         expect(peek(sudokuCell.candidates[1])).toEqual(null);
     });
 
-    test('isLocked$ is false while the locked promise is unresolved', () => {
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], new Promise(() => void(0)));
-        expect(peek(sudokuCell.isLocked$)).toEqual(false);
-        expect(peek(sudokuCell.isLocked$)).toEqual(false);
-        expect(peek(sudokuCell.isLocked$)).toEqual(false);
-    });
-
-    test('isLocked$ is false if the promise resolves when contents are null', async () => {
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], Promise.resolve());
-
-        expect(await lastValueFrom(sudokuCell.isLocked$)).toEqual(false);
-
-        sudokuCell.toggleContents(1);
-
-        expect(await lastValueFrom(sudokuCell.isLocked$)).toEqual(false);
-    });
-
-    test('isLocked$ is true if the promise resolves when contents are set', async () => {
-        let deferred: () => void = () => void(0);
-        const lock = new Promise<void>((resolve) => deferred = resolve);
-
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], lock);
-
-        sudokuCell.toggleContents(1);
-        deferred();
-
-        expect(await lastValueFrom(sudokuCell.isLocked$)).toEqual(true);
-
-        sudokuCell.toggleContents(null);
-
-        expect(await lastValueFrom(sudokuCell.isLocked$)).toEqual(true);
+    test('isLocked is passed to constructor', () => {
+        const sudokuCell = new SudokuCell(gridCell, [gridSlice], true);
+        expect(sudokuCell.isLocked).toEqual(true);
     });
 });

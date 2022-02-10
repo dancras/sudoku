@@ -7,6 +7,24 @@ test('it has 81 cells', () => {
     expect(grid.cells).toHaveLength(81);
 });
 
+test('it accepts default cell contents', () => {
+    const defaultContents = [] as Array<ValidNumber | null>;
+    defaultContents[1] = null;
+    defaultContents[3] = 5;
+    // defaultContents[40] left blank to test sparse array
+    defaultContents[60] = 7;
+
+    const grid = new StandardSudokuGrid(defaultContents);
+
+    expect(peek(grid.cells[3].contents$)).toEqual([5, true]);
+    expect(grid.cells[3].isLocked).toEqual(true);
+    expect(peek(grid.cells[60].contents$)).toEqual([7, true]);
+    expect(grid.cells[60].isLocked).toEqual(true);
+
+    expect(grid.cells[1].isLocked).toEqual(false);
+    expect(grid.cells[40].isLocked).toEqual(false);
+});
+
 test('cells are added to the correct rows', () => {
     const grid = new StandardSudokuGrid();
 

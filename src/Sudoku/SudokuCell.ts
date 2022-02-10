@@ -1,4 +1,4 @@
-import { combineLatest, from, map, Observable, of, shareReplay, startWith, switchMap, withLatestFrom } from 'rxjs';
+import { combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { Answer, MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
@@ -8,11 +8,11 @@ export default class SudokuCell {
 
     contents$: Observable<Answer | null>;
     candidates: MapValidsNumberTo<Observable<boolean | null>>;
-    isLocked$: Observable<boolean>;
+    isLocked: boolean;
 
     slices: GridSlice[];
 
-    constructor(gridCell: GridCell, slices: GridSlice[], lock: Promise<void>) {
+    constructor(gridCell: GridCell, slices: GridSlice[], isLocked: boolean) {
         this.gridCell = gridCell;
         this.slices = slices;
 
@@ -39,14 +39,7 @@ export default class SudokuCell {
             )
         }), {} as typeof this.candidates);
 
-        this.isLocked$ = from(lock).pipe(
-            withLatestFrom(this.contents$),
-            map(([, contents]) => {
-                return contents !== null;
-            }),
-            startWith(false),
-            shareReplay(1)
-        );
+        this.isLocked = isLocked;
     }
 
     toggleContents(contents: ValidNumber | null) {

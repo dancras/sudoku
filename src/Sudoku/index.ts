@@ -23,7 +23,7 @@ export type Answer = [ValidNumber, boolean];
 export type SudokuCell = {
     contents$: Observable<Answer | null>;
     candidates: MapValidsNumberTo<Observable<boolean | null>>;
-    isLocked$: Observable<boolean>;
+    isLocked: boolean;
     toggleContents(contents: ValidNumber | null): void;
     toggleCandidate(candidate: ValidNumber): void;
 }

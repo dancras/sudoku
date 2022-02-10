@@ -1,5 +1,5 @@
 import { combineLatest, defaultIfEmpty, map, merge, mergeMap, Observable, of, scan, skip, take, withLatestFrom } from 'rxjs';
-import { VALID_NUMBERS } from 'src/Sudoku';
+import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 import SudokuCell from 'src/Sudoku/SudokuCell';
@@ -15,8 +15,12 @@ export default class StandardSudokuGame {
 
     isSolved$: Observable<boolean>;
 
-    constructor() {
+    constructor(defaultContents?: Array<ValidNumber | null>) {
         const gridCells = Array.from({ length: 81 }).map(() => new GridCell());
+
+        if (defaultContents) {
+            defaultContents.forEach((contents, i) => gridCells[i].contents$.next(contents));
+        }
 
         const rows = VALID_NUMBERS.map(i =>new GridSlice(
             gridCells.slice(i * 9 - 9, i * 9)
@@ -35,7 +39,7 @@ export default class StandardSudokuGame {
                 rows[getRowIndex(i)],
                 columns[getColumnIndex(i)],
                 blocks[getBlockIndex(i)]
-            ], Promise.resolve()));
+            ], !!defaultContents?.[i]));
 
         const totalCountChanges = this.cells.map(cell => merge(
             cell.contents$.pipe(
