@@ -1,6 +1,6 @@
-import { useContext } from 'preact/hooks';
+import { useContext } from 'react';
 import { Observable } from 'rxjs';
-import { defineDependencies, useEventCallback, useObservable } from 'src/RxPreact';
+import { defineDependencies, useEventCallback, useObservable } from 'src/RxReact';
 import { SudokuCell, ValidNumber } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import 'src/UI/SudokuGrid.css';
@@ -48,7 +48,7 @@ function Cell({ cell, selectedNumber$, app }: { cell: SudokuCell, selectedNumber
     return (
         <div className={`--Cell ${cell.isLocked ? '-Locked' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}
              onClick={notifies(CellEvents.Click)}
-             onDblClick={notifies(CellEvents.DblClick)}
+             onDoubleClick={notifies(CellEvents.DblClick)}
         >
             <div className="--Candidates">
                 {Object.entries(cell.candidates).map(([candidate, status$]) =>

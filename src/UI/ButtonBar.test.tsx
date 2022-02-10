@@ -1,9 +1,8 @@
-import { render, screen } from '@testing-library/preact';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'preact';
-import { act } from 'preact/test-utils';
+import { FunctionComponent } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { Writeable } from 'src/RxPreact';
+import { Writeable } from 'src/RxReact';
 import { createSudokuGame } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createTestProvider } from 'src/Test/TestContext';

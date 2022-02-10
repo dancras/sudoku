@@ -1,4 +1,4 @@
-import { peek } from 'src/RxPreact';
+import { peek } from 'src/RxReact';
 import { ValidNumber } from 'src/Sudoku';
 import StandardSudokuGrid from 'src/Sudoku/StandardSudokuGame';
 

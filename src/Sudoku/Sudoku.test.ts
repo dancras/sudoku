@@ -1,4 +1,4 @@
-import { peek } from 'src/RxPreact';
+import { peek } from 'src/RxReact';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 import SudokuCell from 'src/Sudoku/SudokuCell';

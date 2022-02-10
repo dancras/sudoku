@@ -1,6 +1,6 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { useObservable } from 'src/RxPreact';
+import { useObservable } from 'src/RxReact';
 import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import 'src/SudokuApp.css';

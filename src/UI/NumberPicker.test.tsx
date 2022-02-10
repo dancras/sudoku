@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/preact';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'preact';
+import { FunctionComponent } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { createTestProvider } from 'src/Test/TestContext';

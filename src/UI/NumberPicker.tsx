@@ -1,6 +1,6 @@
-import { useContext } from 'preact/hooks';
+import { useContext } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { defineDependencies, useObservable } from 'src/RxPreact';
+import { defineDependencies, useObservable } from 'src/RxReact';
 import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import 'src/UI/NumberPicker.css';
 

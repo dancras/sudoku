@@ -1,5 +1,5 @@
-import { useContext } from 'preact/hooks';
-import { defineDependencies, useObservable } from 'src/RxPreact';
+import { useContext } from 'react';
+import { defineDependencies, useObservable } from 'src/RxReact';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 
 export const ButtonBarContext = defineDependencies<{

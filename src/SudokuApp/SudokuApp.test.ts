@@ -1,4 +1,4 @@
-import { peek } from 'src/RxPreact';
+import { peek } from 'src/RxReact';
 import DefaultApp from 'src/SudokuApp/DefaultApp';
 
 describe('DefaultApp', () => {

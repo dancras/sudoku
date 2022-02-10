@@ -1,4 +1,4 @@
-import { render } from 'preact';
+import { render } from 'react-dom';
 import AppMain from 'src/AppMain';
 import 'src/index.css';
 

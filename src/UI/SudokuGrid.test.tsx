@@ -1,8 +1,8 @@
-import { act, render, screen } from '@testing-library/preact';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'preact';
+import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Writeable } from 'src/RxPreact';
+import { Writeable } from 'src/RxReact';
 import { Answer, createSudokuGame, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { ContextValue, createTestProvider } from 'src/Test/TestContext';
