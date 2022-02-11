@@ -1,4 +1,4 @@
-import { combineLatest, map, Observable } from 'rxjs';
+import { map, merge, mergeMap, Observable, of, scan, skip, take } from 'rxjs';
 import { MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 
@@ -7,20 +7,20 @@ export default class GridSlice {
 
     constructor(cells: GridCell[]) {
 
-        // map contents to a occurrences change stream
-        // scan occurrences
-        // combine scan with change stream
-        // creates excess occurrences stream
-        // scan those
-
-        const allCellContents$ = combineLatest(cells.map(x => x.contents$));
+        const occurrenceChanges$ = merge(...cells.map(cell =>
+            cell.contents$.pipe(
+                mergeMap(contents => contents === null ? of([1, 0] as [ValidNumber, number]) :
+                    merge(
+                        of<[ValidNumber, number]>([contents, 1]),
+                        cell.contents$.pipe(skip(1), take(1), map(() => [contents, -1] as [ValidNumber, number])))
+                )
+            )
+        ));
 
         this.occurrences = VALID_NUMBERS.reduce(
             (acc, num: ValidNumber) => Object.assign(acc, {
-                [num]: allCellContents$.pipe(
-                    map(allContents => allContents.reduce(
-                        (total, next) => next === num ? total + 1 : total, 0
-                    ))
+                [num]: occurrenceChanges$.pipe(
+                    scan((acc, [contents, change]) => contents === num ? acc + change : acc, 0)
                 )
             }),
             {} as typeof this.occurrences

@@ -126,7 +126,7 @@ test('isValid$ is true when no row column or block has more than 1', () => {
     // * *
     // * 1
     grid.cells[0].toggleContents(1);
-    grid.cells[0].toggleContents(2);
+    grid.cells[1].toggleContents(2);
     grid.cells[12].toggleContents(1);
     grid.cells[15].toggleContents(2);
     grid.cells[28].toggleContents(1);

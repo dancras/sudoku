@@ -1,4 +1,4 @@
-import { combineLatest, defaultIfEmpty, map, merge, mergeMap, Observable, of, scan, skip, take, withLatestFrom } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
 import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
@@ -41,16 +41,16 @@ export default class StandardSudokuGame {
                 blocks[getBlockIndex(i)]
             ], !!defaultContents?.[i]));
 
-        const totalCountChanges = this.cells.map(cell => merge(
+        const totalCountChanges = gridCells.map(cell =>
             cell.contents$.pipe(
-                take(1),
-                map(contents => contents === null ? 0 : 1)
-            ),
-            cell.contents$.pipe(
-                skip(1),
-                map(contents => contents === null ? -1 : 1)
+                mergeMap(contents => contents === null ? of(0) :
+                    merge(
+                        of(1),
+                        cell.contents$.pipe(skip(1), take(1), map(() => -1))
+                    )
+                )
             )
-        ));
+        );
 
         const totalCount$ = merge(...totalCountChanges).pipe(
             scan((acc, next) => acc + next, 0)
@@ -60,42 +60,33 @@ export default class StandardSudokuGame {
             map(count => count === 0)
         );
 
-        const countChangesWithOccurrences = merge(...this.cells.map((cell, i) => {
-            return merge(...cell.slices.map(slice => totalCountChanges[i].pipe(
-                withLatestFrom(cell.contents$),
-                mergeMap(([countChange, contents]) => {
-                    if (contents === null) {
-                        return of([0, 0]);
-                    }
-
-                    return of(countChange).pipe(
-                        withLatestFrom(slice.occurrences[contents[0]])
-                    );
-                })
-            )));
-        }));
-
-        const excessOccurrences = countChangesWithOccurrences.pipe(
-            defaultIfEmpty([0, 0]),
-            scan((acc, [countChange, occurrences]) => {
-                if (countChange === 1 && occurrences > 1) {
+        const excessOccurrences$ = merge(...[...rows, ...columns, ...blocks].flatMap(slice =>
+            VALID_NUMBERS.map(n =>
+                slice.occurrences[n].pipe(
+                    startWith(0),
+                    distinctUntilChanged(),
+                    pairwise(),
+                )
+            )
+        )).pipe(
+            scan((acc, [previous, current]) => {
+                if (current > previous && current > 1) {
                     return acc + 1;
-                } else if (countChange === -1 && occurrences > 0) {
+                } else if (current < previous && current > 0) {
                     return acc - 1;
                 } else {
                     return acc;
                 }
-            }, 0)
+            }, 0),
+            startWith(0),
         );
 
-        this.isValid$ = excessOccurrences.pipe(map(x => {
-            return x === 0;
-        }));
+        this.isValid$ = excessOccurrences$.pipe(
+            map(x => x === 0)
+        );
 
-        this.isSolved$ = combineLatest([totalCount$, excessOccurrences]).pipe(
-            map(([totalCount, excessOccurrences]) => {
-                return totalCount === 81 && excessOccurrences === 0;
-            })
+        this.isSolved$ = combineLatest([totalCount$, this.isValid$]).pipe(
+            map(([totalCount, isValid]) => totalCount === 81 && isValid)
         );
     }
 }
