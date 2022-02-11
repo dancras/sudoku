@@ -8,7 +8,7 @@ export const NumberPickerContext = defineDependencies<{
     selectedNumber$: BehaviorSubject<ValidNumber>
 }>();
 
-export interface NumberPickerStyle extends JSX.CSSProperties {
+export interface NumberPickerStyle extends React.CSSProperties {
     '--selected'?: number;
     '--value'?: number;
 }
