@@ -5,7 +5,6 @@
   --candidate-color: var(--yellow);
   --highlight-color: var(--blue);
   --error-color: var(--red);
-  --highlight-error-color: var(--red-intense);
   --locked-color: var(--purple);
   --highlight-locked-color: var(--blue-dull);
   --zebra-vertical: var(--dark-grey-intense);
@@ -64,10 +63,6 @@
 
 .SudokuGrid .-Invalid .--Contents, .SudokuGrid .--Candidate.-Invalid {
   color: var(--error-color);
-}
-
-.SudokuGrid .-Invalid.-Highlight .--Contents, .SudokuGrid .--Candidate.-Invalid.-Highlight {
-  color: var(--highlight-error-color);
 }
 
 .SudokuGrid .-Locked .--Contents {
