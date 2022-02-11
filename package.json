@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "build": "node patchJestDom.js && tsc && vite build",
+    "build": "node patchNoSleep.js && node patchJestDom.js && tsc && vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
