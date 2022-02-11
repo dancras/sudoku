@@ -1,4 +1,4 @@
-import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, map, merge, mergeMap, Observable, observeOn, of, pairwise, queueScheduler, scan, skip, startWith, take, tap } from 'rxjs';
 import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
@@ -84,6 +84,7 @@ export default class StandardSudokuGame {
                     return acc;
                 }
             }, 0),
+            distinctUntilChanged(),
             startWith(0),
         );
 

@@ -3,9 +3,12 @@
   --background-color: var(--dark-grey);
   --contents-color: var(--green);
   --candidate-color: var(--yellow);
+  --highlight-color: var(--blue);
   --error-color: var(--red);
+  --highlight-error-color: var(--red-intense);
   --locked-color: var(--purple);
-  --zebra-vertical: rgb(37, 35, 38);
+  --highlight-locked-color: var(--blue-dull);
+  --zebra-vertical: var(--dark-grey-intense);
   user-select: none;
 
   display: grid;
@@ -43,24 +46,36 @@
 .SudokuGrid .--Candidate {
   width: calc(100% / 3);
   height: calc(100% / 3);
+  flex-basis: calc(100% / 3);
   color: var(--candidate-color);
+}
+
+.SudokuGrid .-Highlight .--Contents {
+  color: var(--highlight-color);
+}
+
+.SudokuGrid  .--Candidate.-Highlight {
+  color: var(--highlight-color);
 }
 
 .SudokuGrid .--Cell.-ShowingContents .--Candidates {
   display: none;
 }
 
-.SudokuGrid .--Candidate {
-  flex-basis: calc(100% / 3);
-  color: var(--candidate-color);
-}
-
 .SudokuGrid .-Invalid .--Contents, .SudokuGrid .--Candidate.-Invalid {
   color: var(--error-color);
 }
 
+.SudokuGrid .-Invalid.-Highlight .--Contents, .SudokuGrid .--Candidate.-Invalid.-Highlight {
+  color: var(--highlight-error-color);
+}
+
 .SudokuGrid .-Locked .--Contents {
   color: var(--locked-color);
+}
+
+.SudokuGrid .-Locked.-Highlight .--Contents {
+  color: var(--highlight-locked-color);
 }
 
 .SudokuGrid .--Cell {

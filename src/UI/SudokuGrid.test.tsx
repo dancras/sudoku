@@ -222,3 +222,38 @@ test('cell clicks disabled when cell is locked', () => {
     expect(sudokuGrid[0].toggleContents).not.toHaveBeenCalled();
     expect(sudokuGrid[0].toggleCandidate).not.toHaveBeenCalled();
 });
+
+test('cell has -Highlight class if its contents matches selected number', () => {
+    const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
+
+    expect(firstCell?.className).not.toContain('-Highlight');
+
+    act(() => {
+        sudokuGrid[0].contents$.next([1, true]);
+    });
+
+    expect(firstCell?.className).toContain('-Highlight');
+});
+
+test('candidate has -Highlight class if it is active and matches selected number', () => {
+    act(() => {
+        sudokuGrid[0].candidates[1].next(true);
+    });
+
+    const candidateElement = screen.getByText(1);
+
+    expect(candidateElement?.className).toContain('-Highlight');
+
+    act(() => {
+        selectedNumber$.next(2);
+    });
+
+    expect(candidateElement?.className).not.toContain('-Highlight');
+
+    act(() => {
+        selectedNumber$.next(1);
+        sudokuGrid[0].candidates[1].next(null);
+    });
+
+    expect(candidateElement?.className).not.toContain('-Highlight');
+});
