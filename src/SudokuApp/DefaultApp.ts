@@ -21,6 +21,8 @@ export default class DefaultApp {
     }
 
     startGame() {
+        const contents = this.game$.value.getContents();
+        this.game$.next(createSudokuGame(contents));
         this.status$.next(SudokuGameStatus.Solving);
     }
 }

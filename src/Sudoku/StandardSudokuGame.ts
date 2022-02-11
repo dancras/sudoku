@@ -15,33 +15,39 @@ export default class StandardSudokuGame {
 
     isSolved$: Observable<boolean>;
 
+    getContents(): Array<ValidNumber | null> {
+        return this.gridCells.map(cell => cell.contents$.value);
+    }
+
+    gridCells: GridCell[];
+
     constructor(defaultContents?: Array<ValidNumber | null>) {
-        const gridCells = Array.from({ length: 81 }).map(() => new GridCell());
+        this.gridCells = Array.from({ length: 81 }).map(() => new GridCell());
 
         if (defaultContents) {
-            defaultContents.forEach((contents, i) => gridCells[i].contents$.next(contents));
+            defaultContents.forEach((contents, i) => this.gridCells[i].contents$.next(contents));
         }
 
         const rows = VALID_NUMBERS.map(i =>new GridSlice(
-            gridCells.slice(i * 9 - 9, i * 9)
+            this.gridCells.slice(i * 9 - 9, i * 9)
         ));
 
         const columns = VALID_NUMBERS.map(i => new GridSlice(
-            getColumnMembers(i - 1).map(j => gridCells[j])
+            getColumnMembers(i - 1).map(j => this.gridCells[j])
         ));
 
         const blocks = BLOCK_TOP_LEFT_INDEXES.map(i => new GridSlice(
-            getBlockMembers(i).map(j => gridCells[j])
+            getBlockMembers(i).map(j => this.gridCells[j])
         ));
 
         this.cells = Array.from({ length: 81 })
-            .map((x, i) => new SudokuCell(gridCells[i], [
+            .map((x, i) => new SudokuCell(this.gridCells[i], [
                 rows[getRowIndex(i)],
                 columns[getColumnIndex(i)],
                 blocks[getBlockIndex(i)]
             ], !!defaultContents?.[i]));
 
-        const totalCountChanges = gridCells.map(cell =>
+        const totalCountChanges = this.gridCells.map(cell =>
             cell.contents$.pipe(
                 mergeMap(contents => contents === null ? of(0) :
                     merge(

@@ -16,6 +16,8 @@ export type SudokuGame = {
     isValid$: Observable<boolean>;
 
     isSolved$: Observable<boolean>;
+
+    getContents(): Array<ValidNumber | null>;
 }
 
 export type Answer = [ValidNumber, boolean];
@@ -28,6 +30,6 @@ export type SudokuCell = {
     toggleCandidate(candidate: ValidNumber): void;
 }
 
-export function createSudokuGame(): SudokuGame {
-    return new StandardSudokuGame();
+export function createSudokuGame(defaultContents?: Array<ValidNumber | null>): SudokuGame {
+    return new StandardSudokuGame(defaultContents);
 }

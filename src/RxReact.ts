@@ -25,10 +25,16 @@ export function defineDependencies<T>(): Context<T> {
     }) as T);
 }
 
-export function peek<T>(target: Observable<T>): T | undefined {
+export function peek<T>(target: Observable<T> | T): T | undefined {
     let value: T | undefined;
-    target.subscribe(v => value = v).unsubscribe();
-    return value;
+
+    if (target instanceof Observable) {
+        target.subscribe(v => value = v).unsubscribe();
+        return value;
+    } else {
+        return target;
+    }
+
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -203,3 +203,18 @@ test('isSolved$ is true when all cells are filled and the grid is valid', () => 
     grid.cells[8].toggleContents(3);
     expect(peek(grid.isSolved$)).toEqual(false);
 });
+
+test('getContents() returns the current grid contents', () => {
+    const grid = new StandardSudokuGrid();
+
+    grid.cells[0].toggleContents(5);
+    grid.cells[49].toggleContents(8);
+    grid.cells[80].toggleContents(9);
+
+    const expected: Array<number | null> = Array.from({ length: 81 }).map(() => null);
+    expected[0] = 5;
+    expected[49] = 8;
+    expected[80] = 9;
+
+    expect(grid.getContents()).toEqual(expected);
+});
