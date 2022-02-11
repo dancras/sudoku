@@ -13,13 +13,6 @@
   border: 3px solid var(--border-color);
 }
 
-@media (orientation: portrait) {
-  .SudokuGrid {
-    border-left: 0;
-    border-right: 0;
-  }
-}
-
 .SudokuGrid .--Cell {
   -webkit-tap-highlight-color: transparent;
   background-color: var(--background-color);
