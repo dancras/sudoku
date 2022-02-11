@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { defineDependencies, useObservable } from 'src/RxReact';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
+import 'src/UI/ButtonBar.css';
 
 export const ButtonBarContext = defineDependencies<{
     app: SudokuApp
