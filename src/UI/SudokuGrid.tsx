@@ -43,7 +43,7 @@ function Cell({ cell, selectedNumber$, app }: { cell: SudokuCell, selectedNumber
         } else if (status === SudokuGameStatus.Solving && cellEvent === CellEvents.Click) {
             cell.toggleCandidate(selectedNumber);
         }
-    }, [selectedNumber$, app.status$], [cell.isLocked]);
+    }, [selectedNumber$, app.status$], [cell, cell.isLocked]);
 
     return (
         <div className={`--Cell ${cell.isLocked ? '-Locked' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}

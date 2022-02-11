@@ -118,12 +118,12 @@ test('cell has -ShowingCandidates class when it has no contents to show', () => 
     expect(firstCell?.className).not.toContain('-ShowingCandidates');
 });
 
-test('cell has -Locked class when it is locked', async () => {
+test('cell has -Locked class when it is locked', () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     expect(firstCell?.className).not.toContain('-Locked');
 
-    await setIsLocked(0, true);
+    setIsLocked(0, true);
 
     expect(firstCell?.className).toContain('-Locked');
 });
@@ -211,10 +211,10 @@ test('cell clicks disabled when SudokuGameStatus.Solved', () => {
     expect(sudokuGrid[0].toggleCandidate).not.toHaveBeenCalled();
 });
 
-test('cell clicks disabled when cell is locked', async () => {
+test('cell clicks disabled when cell is locked', () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
-    await setIsLocked(0, true);
+    setIsLocked(0, true);
 
     firstCell && userEvent.click(firstCell);
     firstCell && userEvent.dblClick(firstCell);
