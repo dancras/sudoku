@@ -27,12 +27,13 @@ export function defineDependencies<T>(): Context<T> {
     }) as T);
 }
 
-export function peek<T>(target: Observable<T> | T): T | undefined {
-    let value: T | undefined;
+export function peek<T>(target: Observable<T> | T): T {
+    let value: T;
 
     if (target instanceof Observable) {
         target.subscribe(v => value = v).unsubscribe();
-        return value;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return value!;
     } else {
         return target;
     }

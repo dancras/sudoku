@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { combineLatest, map, Observable, of } from 'rxjs';
+import { combineLatest, map, Observable } from 'rxjs';
 import { defineDependencies, useEventCallback, useObservable } from 'src/RxReact';
 import { MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
@@ -7,7 +7,6 @@ import 'src/UI/SudokuGrid.css';
 
 export const SudokuGridContext = defineDependencies<{
     selectedNumber$: Observable<ValidNumber>
-    sudokuGrid: SudokuCell[]
     app: SudokuApp
 }>();
 
@@ -22,9 +21,10 @@ type Highlights = {
 }
 
 export default function SudokuGrid() {
-    const { selectedNumber$, sudokuGrid, app } = useContext(SudokuGridContext);
+    const { selectedNumber$, app } = useContext(SudokuGridContext);
+    const game = useObservable(app.game$);
 
-    const highlights: Highlights[] = useMemo(() => sudokuGrid.map(cell => ({
+    const highlights: Highlights[] = useMemo(() => game.cells.map(cell => ({
         highlightCell$: combineLatest([cell.contents$, selectedNumber$]).pipe(
             map(([contents, selectedNumber]) => !!contents && contents[0] === selectedNumber)
         ),
@@ -33,11 +33,11 @@ export default function SudokuGrid() {
                 map(([candidateStatus, selectedNumber]) => candidateStatus !== null && n === selectedNumber)
             )
         }), {} as MapValidsNumberTo<Observable<boolean>>)
-    })), [sudokuGrid]);
+    })), [game.cells]);
 
     return (
         <div className="SudokuGrid" data-testid="sudoku-grid">
-            {sudokuGrid.map((cell, i) =>
+            {game.cells.map((cell, i) =>
                 <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} app={app} highlights={highlights[i]} />
             )}
         </div>

@@ -11,9 +11,8 @@ import NumberPicker, { NumberPickerContext } from 'src/UI/NumberPicker';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
 function AppMain() {
-    const selectedNumber$ = useMemo(() => new BehaviorSubject<ValidNumber>(1), []);
-    const app = useMemo(() => createSudokuApp(), []);
-    const game = useObservable(app.game$);
+    const selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
+    const app = createSudokuApp();
 
     useEffect(() => {
         const storage = createPersistence<StorageSchema>('SaveLoadUndo');
@@ -24,7 +23,7 @@ function AppMain() {
 
     return (
         <div className="SudokuApp">
-            <SudokuGridContext.Provider value={{ selectedNumber$, app, sudokuGrid: game.cells }}>
+            <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
                 <SudokuGrid />
             </SudokuGridContext.Provider>
             <NumberPickerContext.Provider value={{ selectedNumber$ }}>

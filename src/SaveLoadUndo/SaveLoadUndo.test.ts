@@ -51,6 +51,17 @@ describe('mergeUpdates()', () => {
 
     });
 
+    it('ignores the status update if it is the current value', () => {
+        const app = createMockSudokuApp();
+        app.status$.next(SudokuGameStatus.Solving);
+
+        const $updates = mergeUpdates(app);
+        const updateSpy = vi.fn();
+        $updates.subscribe(updateSpy);
+
+        expect(updateSpy).not.toHaveBeenCalled();
+    });
+
     it('emits a GridUpdate when the current game updates', () => {
         const app = createMockSudokuApp();
         const game = createMockSudokuGame();

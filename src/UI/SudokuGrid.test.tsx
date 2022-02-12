@@ -2,15 +2,14 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Writeable } from 'src/RxReact';
-import { Answer, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { peek, Writeable } from 'src/RxReact';
+import { SudokuCell, ValidNumber } from 'src/Sudoku';
 import { SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { ContextValue, createTestProvider } from 'src/Test/TestContext';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
 let TestProvider: FunctionComponent;
-let setContextValue: (value: typeof contextValue) => void;
 
 let selectedNumber$: Subject<ValidNumber>;
 let sudokuGrid: Writeable<SudokuCell>[];
@@ -18,33 +17,38 @@ let status$: Subject<SudokuGameStatus>;
 let contextValue: Writeable<ContextValue<typeof SudokuGridContext>>;
 
 function setIsLocked(i: number, value: boolean) {
-    contextValue.sudokuGrid[i] = { ...contextValue.sudokuGrid[i],
+    const game = peek(contextValue.app.game$);
+
+    game.cells[i] = { ...game.cells[i],
         isLocked: value
     };
-    contextValue.sudokuGrid = [...contextValue.sudokuGrid];
-    setContextValue({ ...contextValue });
+    game.cells = [...game.cells];
+    contextValue.app.game$.next({ ...game });
 }
 
 beforeEach(() => {
-    sudokuGrid = Array.from({ length: 81 }).map(() => ({
-        contents$: new BehaviorSubject<Answer | null>(null),
-        candidates: VALID_NUMBERS.reduce((acc, i) => Object.assign(acc, {
-            [i]: new BehaviorSubject<boolean | null>(null),
-        }), {}) as MapValidsNumberTo<Subject<boolean | null>>,
-        isLocked: false,
-        toggleContents: vi.fn(),
-        toggleCandidate: vi.fn()
-    } as Writeable<SudokuCell>));
+    // sudokuGrid = Array.from({ length: 81 }).map(() => ({
+    //     contents$: new BehaviorSubject<Answer | null>(null),
+    //     candidates: VALID_NUMBERS.reduce((acc, i) => Object.assign(acc, {
+    //         [i]: new BehaviorSubject<boolean | null>(null),
+    //     }), {}) as MapValidsNumberTo<Subject<boolean | null>>,
+    //     isLocked: false,
+    //     toggleContents: vi.fn(),
+    //     toggleCandidate: vi.fn()
+    // } as Writeable<SudokuCell>));
 
     selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Solving);
 
-    [TestProvider, setContextValue] = createTestProvider(SudokuGridContext, contextValue = {
+    const app = Object.assign(createMockSudokuApp(), {
+        status$
+    });
+
+    sudokuGrid = peek(app.game$).cells;
+
+    [TestProvider] = createTestProvider(SudokuGridContext, contextValue = {
         selectedNumber$,
-        sudokuGrid,
-        app: Object.assign(createMockSudokuApp(), {
-            status$
-        })
+        app
     });
 
     render(

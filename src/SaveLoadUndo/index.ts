@@ -1,5 +1,5 @@
 import { Persistence } from '@vitorluizc/persistence';
-import { EMPTY, map, merge, mergeMap, Observable, of, scan, switchMap, take, withLatestFrom } from 'rxjs';
+import { EMPTY, map, merge, mergeMap, Observable, of, scan, skip, switchMap, withLatestFrom } from 'rxjs';
 import { SudokuGameUpdate } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 
@@ -24,6 +24,7 @@ export type ManagedUpdates = Observable<ManagedUpdate>;
 export function mergeUpdates(app: SudokuApp): ManagedUpdates {
     return merge(
         app.status$.pipe(
+            skip(1),
             mergeMap(status => status === SudokuGameStatus.Solving ? of<ManagedUpdate>({
                 type: 'StartGame'
             }) : EMPTY)
