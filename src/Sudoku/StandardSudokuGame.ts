@@ -1,5 +1,5 @@
-import { combineLatest, debounceTime, distinctUntilChanged, map, merge, mergeMap, Observable, observeOn, of, pairwise, queueScheduler, scan, skip, startWith, take, tap } from 'rxjs';
-import { ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
+import { SudokuGameUpdate, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 import SudokuCell from 'src/Sudoku/SudokuCell';
@@ -14,6 +14,8 @@ export default class StandardSudokuGame {
     isValid$: Observable<boolean>;
 
     isSolved$: Observable<boolean>;
+
+    updates$: Observable<SudokuGameUpdate>;
 
     getContents(): Array<ValidNumber | null> {
         return this.gridCells.map(cell => cell.contents$.value);
@@ -46,6 +48,30 @@ export default class StandardSudokuGame {
                 columns[getColumnIndex(i)],
                 blocks[getBlockIndex(i)]
             ], !!defaultContents?.[i]));
+
+        this.updates$ = merge(...this.gridCells.map(
+            (cell, i) => merge(
+                cell.contents$.pipe(
+                    skip(1),
+                    map(contents => ({
+                        type: 'CellUpdate',
+                        cellIndex: i,
+                        contents
+                    } as SudokuGameUpdate))
+                ),
+                ...VALID_NUMBERS.map(n =>
+                    cell.candidates[n].pipe(
+                        skip(1),
+                        map(isShowing => ({
+                            type: 'CandidateUpdate',
+                            cellIndex: i,
+                            candidate: n,
+                            isShowing
+                        } as SudokuGameUpdate))
+                    )
+                )
+            )
+        ));
 
         const totalCountChanges = this.gridCells.map(cell =>
             cell.contents$.pipe(

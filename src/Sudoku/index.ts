@@ -8,6 +8,17 @@ export type MapValidsNumberTo<T> = {
     [K in ValidNumber]: T
 }
 
+export type SudokuGameUpdate = {
+    type: 'CellUpdate',
+    cellIndex: number,
+    contents: ValidNumber | null
+} | {
+    type: 'CandidateUpdate',
+    cellIndex: number,
+    candidate: ValidNumber,
+    isShowing: boolean
+};
+
 export type SudokuGame = {
     cells: SudokuCell[];
 
@@ -18,6 +29,8 @@ export type SudokuGame = {
     isSolved$: Observable<boolean>;
 
     getContents(): Array<ValidNumber | null>;
+
+    updates$: Observable<SudokuGameUpdate>;
 }
 
 export type Answer = [ValidNumber, boolean];

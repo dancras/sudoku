@@ -1,5 +1,5 @@
 import { peek } from 'src/RxReact';
-import { ValidNumber } from 'src/Sudoku';
+import { SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
 import StandardSudokuGrid from 'src/Sudoku/StandardSudokuGame';
 
 test('it has 81 cells', () => {
@@ -217,4 +217,75 @@ test('getContents() returns the current grid contents', () => {
     expected[80] = 9;
 
     expect(grid.getContents()).toEqual(expected);
+});
+
+test('updates$ emits cell updates with correct info', () => {
+
+    const grid = new StandardSudokuGrid();
+    const updateSpy = vi.fn();
+
+    grid.updates$.subscribe(updateSpy);
+
+    expect(updateSpy).not.toHaveBeenCalled();
+
+    grid.cells[0].toggleContents(5);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CellUpdate',
+        cellIndex: 0,
+        contents: 5
+    } as SudokuGameUpdate);
+
+    grid.cells[50].toggleContents(2);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CellUpdate',
+        cellIndex: 50,
+        contents: 2
+    } as SudokuGameUpdate);
+
+    grid.cells[50].toggleContents(2);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CellUpdate',
+        cellIndex: 50,
+        contents: null
+    } as SudokuGameUpdate);
+
+});
+
+test('updates$ emits candidate updates with correct info', () => {
+
+    const grid = new StandardSudokuGrid();
+    const updateSpy = vi.fn();
+
+    grid.updates$.subscribe(updateSpy);
+
+    grid.cells[0].toggleCandidate(7);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CandidateUpdate',
+        cellIndex: 0,
+        candidate: 7,
+        isShowing: true
+    } as SudokuGameUpdate);
+
+    grid.cells[23].toggleCandidate(2);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CandidateUpdate',
+        cellIndex: 23,
+        candidate: 2,
+        isShowing: true
+    } as SudokuGameUpdate);
+
+    grid.cells[0].toggleCandidate(7);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CandidateUpdate',
+        cellIndex: 0,
+        candidate: 7,
+        isShowing: false
+    } as SudokuGameUpdate);
+
 });

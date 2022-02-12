@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { Writeable } from 'src/RxReact';
-import { createSudokuGame } from 'src/Sudoku';
+import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createTestProvider } from 'src/Test/TestContext';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
@@ -20,7 +20,7 @@ describe('Start Button', () => {
         [TestProvider] = createTestProvider(ButtonBarContext, {
             app: {
                 status$: gameStatus$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating),
-                game$: new BehaviorSubject(createSudokuGame()),
+                game$: new BehaviorSubject(createMockSudokuGame()),
                 canStart$: gameCanStart$ = new BehaviorSubject<boolean>(false),
                 startGame: startGameSpy = vi.fn()
             } as Writeable<SudokuApp>

@@ -3,8 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Writeable } from 'src/RxReact';
-import { Answer, createSudokuGame, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
-import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
+import { Answer, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { SudokuGameStatus } from 'src/SudokuApp';
+import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { ContextValue, createTestProvider } from 'src/Test/TestContext';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
@@ -41,12 +42,9 @@ beforeEach(() => {
     [TestProvider, setContextValue] = createTestProvider(SudokuGridContext, contextValue = {
         selectedNumber$,
         sudokuGrid,
-        app: {
-            status$,
-            game$: new BehaviorSubject(createSudokuGame()),
-            canStart$: new BehaviorSubject<boolean>(false),
-            startGame: vi.fn()
-        } as Writeable<SudokuApp>
+        app: Object.assign(createMockSudokuApp(), {
+            status$
+        })
     });
 
     render(

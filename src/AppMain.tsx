@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import createPersistence from '@vitorluizc/persistence';
+import { useEffect, useMemo } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { useObservable } from 'src/RxReact';
+import { loadFromStorage, mergeUpdates, setupStorage, StorageSchema } from 'src/SaveLoadUndo';
 import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import 'src/SudokuApp.css';
@@ -12,6 +14,13 @@ function AppMain() {
     const selectedNumber$ = useMemo(() => new BehaviorSubject<ValidNumber>(1), []);
     const app = useMemo(() => createSudokuApp(), []);
     const game = useObservable(app.game$);
+
+    useEffect(() => {
+        const storage = createPersistence<StorageSchema>('SaveLoadUndo');
+        loadFromStorage(storage, app);
+        const $updates = mergeUpdates(app);
+        setupStorage(storage, $updates);
+    }, []);
 
     return (
         <div className="SudokuApp">

@@ -4,12 +4,14 @@ import { SpyInstanceFn } from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Writeable<T> =
-    (T extends Subject<any> ? T :
-        (T extends Observable<infer C> ? Subject<C> :
-            (T extends Array<infer C> ? Array<Writeable<C>> :
-                (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
-                    (T extends { [K in keyof T]: any } ? { [K in keyof T]: Writeable<T[K]> } :
-                        T
+    (T extends Subject<infer C> ? Subject<Writeable<C>> :
+        (T extends Observable<infer C> ? Subject<Writeable<C>> :
+            (T extends [unknown?, unknown?, unknown?, unknown?, unknown?] ? { [K in keyof T]: Writeable<T[K]> } :
+                (T extends Array<infer C> ? Array<Writeable<C>> :
+                    (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
+                        (T extends { [K in keyof T]: unknown } ? { [K in keyof T]: Writeable<T[K]> } :
+                            T
+                        )
                     )
                 )
             )
