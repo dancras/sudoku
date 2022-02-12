@@ -28,7 +28,7 @@ export default function ButtonBar() {
     function handleClick() {
         app.startGame();
 
-        if (process.env.JEST_WORKER_ID === undefined) {
+        if (typeof process !== 'undefined' && process.env.JEST_WORKER_ID === undefined) {
             noSleep.enable();
         }
     }
