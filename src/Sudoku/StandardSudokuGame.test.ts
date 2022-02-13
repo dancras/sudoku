@@ -116,6 +116,14 @@ test('isEmpty$ is false when any cell has contents', () => {
     expect(peek(grid.isEmpty$)).toEqual(true);
 });
 
+test('isEmpty$ is true when only locked cells have contents', () => {
+    const grid = new StandardSudokuGrid([6]);
+
+    expect(peek(grid.isEmpty$)).toEqual(true);
+
+    grid.cells[0].toggleContents(1);
+});
+
 test('isValid$ is true when no row column or block has more than 1', () => {
     const grid = new StandardSudokuGrid();
 

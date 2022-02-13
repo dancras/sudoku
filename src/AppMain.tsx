@@ -1,7 +1,7 @@
 import createPersistence from '@vitorluizc/persistence';
-import { useEffect, useMemo } from 'react';
+import NoSleep from 'nosleep.js';
+import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { useObservable } from 'src/RxReact';
 import { loadFromStorage, mergeUpdates, setupStorage, StorageSchema } from 'src/SaveLoadUndo';
 import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
@@ -9,6 +9,16 @@ import 'src/SudokuApp.css';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
 import NumberPicker, { NumberPickerContext } from 'src/UI/NumberPicker';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
+
+let noSleep = {
+    enable() {
+        // Do nothing in tests
+    }
+};
+
+if (!navigator.userAgent.includes('jsdom')) {
+    noSleep = new NoSleep();
+}
 
 function AppMain() {
     const selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
@@ -21,8 +31,14 @@ function AppMain() {
         setupStorage(storage, $updates);
     }, []);
 
+    function activateNoSleep() {
+        if (typeof process !== 'undefined' && process.env.JEST_WORKER_ID === undefined) {
+            noSleep.enable();
+        }
+    }
+
     return (
-        <div className="SudokuApp">
+        <div className="SudokuApp" onClick={activateNoSleep}>
             <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
                 <SudokuGrid />
             </SudokuGridContext.Provider>

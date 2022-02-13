@@ -88,8 +88,10 @@ export default class StandardSudokuGame {
             scan((acc, next) => acc + next, 0)
         );
 
+        const numberOfLockedCells = defaultContents ? defaultContents.filter(x => !!x).length : 0;
+
         this.isEmpty$ = totalCount$.pipe(
-            map(count => count === 0)
+            map(count => count === numberOfLockedCells)
         );
 
         const excessOccurrences$ = merge(...[...rows, ...columns, ...blocks].flatMap(slice =>

@@ -8,6 +8,9 @@ export function createMockSudokuApp(): Writeable<SudokuApp> {
         status$: new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating),
         game$: new BehaviorSubject(createMockSudokuGame()),
         canStart$: new BehaviorSubject<boolean>(false),
-        startGame: vi.fn()
+        canReset$: new BehaviorSubject<boolean>(false),
+        startGame: vi.fn(),
+        newGame: vi.fn(),
+        resetGame: vi.fn(),
     };
 }

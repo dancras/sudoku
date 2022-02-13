@@ -12,7 +12,10 @@ export type SudokuApp = {
     status$: Observable<SudokuGameStatus>
     game$: Observable<SudokuGame>
     canStart$: Observable<boolean>
+    canReset$: Observable<boolean>
     startGame(): void;
+    newGame(): void;
+    resetGame(): void;
 }
 
 export function createSudokuApp() {
