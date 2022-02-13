@@ -1,7 +1,7 @@
 import { Persistence } from '@vitorluizc/persistence';
-import { EMPTY, map, merge, mergeMap, Observable, of, scan, skip, switchMap, withLatestFrom } from 'rxjs';
+import { map, merge, Observable, of, scan, switchMap, withLatestFrom } from 'rxjs';
 import { SudokuGameUpdate } from 'src/Sudoku';
-import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
+import { SudokuApp, SudokuAppUpdate } from 'src/SudokuApp';
 
 export enum StorageSchemaVersion {
     One
@@ -13,7 +13,8 @@ export type StorageSchema = {
 }
 
 export type ManagedUpdate = {
-    type: 'StartGame'
+    type: 'AppUpdate',
+    detail: SudokuAppUpdate
 } | {
     type: 'GridUpdate',
     detail: SudokuGameUpdate
@@ -23,20 +24,24 @@ export type ManagedUpdates = Observable<ManagedUpdate>;
 
 export function mergeUpdates(app: SudokuApp): ManagedUpdates {
     return merge(
-        app.status$.pipe(
-            skip(1),
-            mergeMap(status => status === SudokuGameStatus.Solving ? of<ManagedUpdate>({
-                type: 'StartGame'
-            }) : EMPTY)
+        app.updates$.pipe(
+            map(detail => ({
+                type: 'AppUpdate',
+                detail
+            } as ManagedUpdate))
         ),
         app.game$.pipe(
             switchMap(game => game.updates$),
-            map(update => ({
+            map(detail => ({
                 type: 'GridUpdate',
-                detail: update
+                detail
             } as ManagedUpdate))
         )
     );
+}
+
+function isStartGameUpdate(update: ManagedUpdate): boolean {
+    return update.type === 'AppUpdate' && update.detail.type === 'StartGameUpdate';
 }
 
 export function setupStorage(storage: Persistence<StorageSchema>, updates$: ManagedUpdates) {
@@ -44,7 +49,18 @@ export function setupStorage(storage: Persistence<StorageSchema>, updates$: Mana
     const initialUpdates = storage.get()?.updates || [];
 
     return updates$.pipe(
-        scan((acc, next) => acc.concat(next), initialUpdates)
+        scan((acc, next) => {
+            if (next.type === 'AppUpdate' && next.detail.type === 'NewGameUpdate') {
+                return [];
+            } else if (next.type === 'AppUpdate' && next.detail.type === 'ResetGameUpdate') {
+                while (acc.length > 0 && !isStartGameUpdate(acc[acc.length - 1])) {
+                    acc.pop();
+                }
+                return acc;
+            } else {
+                return acc.concat(next);
+            }
+        }, initialUpdates)
     ).subscribe(updates => {
         storage.set({
             version: StorageSchemaVersion.One,
@@ -64,7 +80,7 @@ export function loadFromStorage(storage: Persistence<StorageSchema>, app: Sudoku
             game.cells[update.detail.cellIndex].toggleContents(update.detail.contents);
         } else if (update.type === 'GridUpdate' && update.detail.type === 'CandidateUpdate') {
             game.cells[update.detail.cellIndex].toggleCandidate(update.detail.candidate);
-        } else if (update.type === 'StartGame') {
+        } else if (update.type === 'AppUpdate' && update.detail.type === 'StartGameUpdate') {
             app.startGame();
         }
     });

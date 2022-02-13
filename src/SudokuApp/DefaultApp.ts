@@ -1,6 +1,6 @@
-import { BehaviorSubject, combineLatest, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap } from 'rxjs';
 import { createSudokuGame, SudokuGame } from 'src/Sudoku';
-import { SudokuGameStatus } from 'src/SudokuApp';
+import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 
 export default class DefaultApp {
 
@@ -11,6 +11,8 @@ export default class DefaultApp {
     canStart$: Observable<boolean>;
 
     canReset$: Observable<boolean>;
+
+    updates$: Subject<SudokuAppUpdate>;
 
     constructor() {
         this.status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating);
@@ -25,17 +27,25 @@ export default class DefaultApp {
             switchMap(game => combineLatest([game.isEmpty$, game.isSolved$])),
             map(([isEmpty, isSolved]) => !isEmpty && !isSolved)
         );
+
+        this.updates$ = new Subject();
     }
 
     startGame() {
         const contents = this.game$.value.getContents();
         this.game$.next(createSudokuGame(contents));
         this.status$.next(SudokuGameStatus.Solving);
+        this.updates$.next({
+            type: 'StartGameUpdate'
+        });
     }
 
     newGame() {
         this.game$.next(createSudokuGame());
         this.status$.next(SudokuGameStatus.Creating);
+        this.updates$.next({
+            type: 'NewGameUpdate'
+        });
     }
 
     resetGame() {
@@ -43,5 +53,8 @@ export default class DefaultApp {
             .map((contents, i) => this.game$.value.cells[i].isLocked ? contents : null);
 
         this.game$.next(createSudokuGame(lockedContents));
+        this.updates$.next({
+            type: 'ResetGameUpdate'
+        });
     }
 }

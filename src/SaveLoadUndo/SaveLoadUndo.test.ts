@@ -7,6 +7,13 @@ import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 
+const START_GAME_UPDATE: ManagedUpdate = {
+    type: 'AppUpdate',
+    detail: {
+        type: 'StartGameUpdate'
+    }
+};
+
 let mockStorage: Persistence<StorageSchema>;
 
 beforeEach(() => {
@@ -29,7 +36,7 @@ beforeEach(() => {
 
 describe('mergeUpdates()', () => {
 
-    it('emits a StartGame when the app status changes to Solving, ignoring other statuses', () => {
+    it('emits an AppUpdate when the app updates', () => {
 
         const app = createMockSudokuApp();
 
@@ -39,27 +46,12 @@ describe('mergeUpdates()', () => {
 
         expect(updateSpy).not.toHaveBeenCalled();
 
-        app.status$.next(SudokuGameStatus.Solving);
-
-        expect(updateSpy).toHaveBeenCalledWith({
-            type: 'StartGame'
+        app.updates$.next({
+            type: 'StartGameUpdate'
         });
 
-        app.status$.next(SudokuGameStatus.Solved);
+        expect(updateSpy).toHaveBeenCalledWith(START_GAME_UPDATE);
 
-        expect(updateSpy).toHaveBeenCalledTimes(1);
-
-    });
-
-    it('ignores the status update if it is the current value', () => {
-        const app = createMockSudokuApp();
-        app.status$.next(SudokuGameStatus.Solving);
-
-        const $updates = mergeUpdates(app);
-        const updateSpy = vi.fn();
-        $updates.subscribe(updateSpy);
-
-        expect(updateSpy).not.toHaveBeenCalled();
     });
 
     it('emits a GridUpdate when the current game updates', () => {
@@ -98,7 +90,10 @@ describe('setupStorage()', () => {
         setupStorage(mockStorage, updates$);
 
         updates$.next({
-            type: 'StartGame'
+            type: 'AppUpdate',
+            detail: {
+                type: 'StartGameUpdate'
+            }
         });
 
         updates$.next({
@@ -112,10 +107,7 @@ describe('setupStorage()', () => {
 
         expect(mockStorage.get()).toEqual({
             version: StorageSchemaVersion.One,
-            updates: [{
-                type: 'StartGame'
-
-            } as ManagedUpdate, {
+            updates: [START_GAME_UPDATE, {
                 type: 'GridUpdate',
                 detail: {
                     type: 'CellUpdate',
@@ -131,25 +123,81 @@ describe('setupStorage()', () => {
 
         mockStorage.set({
             version: StorageSchemaVersion.One,
-            updates: [{
-                type: 'StartGame'
-
-            }]
+            updates: [START_GAME_UPDATE]
         });
 
         setupStorage(mockStorage, updates$);
 
+        updates$.next(START_GAME_UPDATE);
+
+        expect(mockStorage.get()).toEqual({
+            version: StorageSchemaVersion.One,
+            updates: [START_GAME_UPDATE , START_GAME_UPDATE]
+        });
+    });
+
+    it('empties the storage when a NewGameUpdate is received', () => {
+        const updates$: Writeable<ManagedUpdates> = new Subject();
+
+        setupStorage(mockStorage, updates$);
+
+        updates$.next(START_GAME_UPDATE);
+
         updates$.next({
-            type: 'StartGame'
+            type: 'AppUpdate',
+            detail: {
+                type: 'NewGameUpdate'
+            }
+        });
+
+        expect(mockStorage.get()).toEqual({
+            version: StorageSchemaVersion.One,
+            updates: []
+        });
+    });
+
+    it('empties the storage upto the most recent StartGameUpdate when ResetGameUpdate received', () => {
+        const updates$: Writeable<ManagedUpdates> = new Subject();
+
+        setupStorage(mockStorage, updates$);
+
+        updates$.next({
+            type: 'GridUpdate',
+            detail: {
+                type: 'CellUpdate',
+                cellIndex: 50,
+                contents: 2
+            }
+        });
+
+        updates$.next(START_GAME_UPDATE);
+
+        updates$.next({
+            type: 'GridUpdate',
+            detail: {
+                type: 'CellUpdate',
+                cellIndex: 50,
+                contents: null
+            }
+        });
+
+        updates$.next({
+            type: 'AppUpdate',
+            detail: {
+                type: 'ResetGameUpdate'
+            }
         });
 
         expect(mockStorage.get()).toEqual({
             version: StorageSchemaVersion.One,
             updates: [{
-                type: 'StartGame'
-            } , {
-                type: 'StartGame'
-            }]
+                type: 'GridUpdate',
+                detail: {
+                    type: 'CellUpdate',
+                    cellIndex: 50,
+                    contents: 2
+                }
+            }, START_GAME_UPDATE]
         });
     });
 
@@ -171,9 +219,7 @@ describe('loadFromStorage()', () => {
                     cellIndex: 50,
                     contents: 2
                 }
-            }, {
-                type: 'StartGame'
-            }, {
+            }, START_GAME_UPDATE, {
                 type: 'GridUpdate',
                 detail: {
                     type: 'CandidateUpdate',
@@ -206,9 +252,7 @@ describe('loadFromStorage()', () => {
 
         mockStorage.set({
             version: StorageSchemaVersion.One,
-            updates: [{
-                type: 'StartGame'
-            }]
+            updates: [START_GAME_UPDATE]
         });
 
         loadFromStorage(mockStorage, app);
@@ -233,9 +277,7 @@ describe('loadFromStorage()', () => {
 
         mockStorage.set({
             version: StorageSchemaVersion.One,
-            updates: [{
-                type: 'StartGame'
-            }, {
+            updates: [START_GAME_UPDATE, {
                 type: 'GridUpdate',
                 detail: {
                     type: 'CellUpdate',

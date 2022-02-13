@@ -1,6 +1,6 @@
 import { peek } from 'src/RxReact';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
-import { SudokuGameStatus } from 'src/SudokuApp';
+import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 import DefaultApp from 'src/SudokuApp/DefaultApp';
 
 describe('DefaultApp', () => {
@@ -10,10 +10,10 @@ describe('DefaultApp', () => {
 
         expect(peek(app.canStart$)).toEqual(false);
 
-        game?.cells[0].toggleContents(1);
+        game.cells[0].toggleContents(1);
         expect(peek(app.canStart$)).toEqual(true);
 
-        game?.cells[1].toggleContents(1);
+        game.cells[1].toggleContents(1);
         expect(peek(app.canStart$)).toEqual(false);
     });
 
@@ -35,19 +35,19 @@ describe('DefaultApp', () => {
         const app = new DefaultApp();
         const initialGame = peek(app.game$);
 
-        initialGame?.cells[0].toggleContents(1);
-        initialGame?.cells[3].toggleContents(2);
-        initialGame?.cells[40].toggleContents(3);
+        initialGame.cells[0].toggleContents(1);
+        initialGame.cells[3].toggleContents(2);
+        initialGame.cells[40].toggleContents(3);
 
         app.startGame();
 
         const startedGame = peek(app.game$);
 
         expect(startedGame).not.toBe(initialGame);
-        expect(startedGame?.getContents()).toEqual(initialGame?.getContents());
-        expect(peek(startedGame?.cells[0].isLocked)).toEqual(true);
-        expect(peek(startedGame?.cells[3].isLocked)).toEqual(true);
-        expect(peek(startedGame?.cells[40].isLocked)).toEqual(true);
+        expect(startedGame.getContents()).toEqual(initialGame.getContents());
+        expect(peek(startedGame.cells[0].isLocked)).toEqual(true);
+        expect(peek(startedGame.cells[3].isLocked)).toEqual(true);
+        expect(peek(startedGame.cells[40].isLocked)).toEqual(true);
     });
 
     test('newGame() replaces the game with an empty one and sets status to Creating', () => {
@@ -86,5 +86,30 @@ describe('DefaultApp', () => {
 
         expect(resetGame).not.toBe(startedGame);
         expect(resetGame.getContents()).toEqual(creatingGame.getContents());
+    });
+
+    test('it emits updates with actions taken', () => {
+        const app = new DefaultApp();
+        const updateSpy = vi.fn();
+
+        app.updates$.subscribe(updateSpy);
+
+        app.startGame();
+
+        expect(updateSpy).toHaveBeenCalledWith({
+            type: 'StartGameUpdate'
+        } as SudokuAppUpdate);
+
+        app.resetGame();
+
+        expect(updateSpy).toHaveBeenCalledWith({
+            type: 'ResetGameUpdate'
+        } as SudokuAppUpdate);
+
+        app.newGame();
+
+        expect(updateSpy).toHaveBeenCalledWith({
+            type: 'NewGameUpdate'
+        } as SudokuAppUpdate);
     });
 });

@@ -8,14 +8,23 @@ export enum SudokuGameStatus {
     Solved
 }
 
+export type SudokuAppUpdate = {
+    type: 'StartGameUpdate'
+} | {
+    type: 'NewGameUpdate'
+} | {
+    type: 'ResetGameUpdate'
+};
+
 export type SudokuApp = {
     status$: Observable<SudokuGameStatus>
     game$: Observable<SudokuGame>
     canStart$: Observable<boolean>
     canReset$: Observable<boolean>
-    startGame(): void;
-    newGame(): void;
-    resetGame(): void;
+    updates$: Observable<SudokuAppUpdate>
+    startGame(): void
+    newGame(): void
+    resetGame(): void
 }
 
 export function createSudokuApp() {
