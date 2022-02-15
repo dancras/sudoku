@@ -4,7 +4,6 @@ import { Writeable } from 'src/RxReact';
 import { loadFromStorage, ManagedUpdate, ManagedUpdates, mergeUpdates, setupStorage, StorageSchema, StorageSchemaVersion } from 'src/SaveLoadUndo';
 import { SudokuGameUpdate } from 'src/Sudoku';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
-import { SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 
 const START_GAME_UPDATE: ManagedUpdate = {

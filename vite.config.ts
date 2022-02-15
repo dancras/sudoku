@@ -3,10 +3,17 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      base: '/sudoku/',
+      registerType: 'autoUpdate'
+    })
+  ],
   base: '/sudoku/',
   test: {
     globals: true,
@@ -18,6 +25,7 @@ export default defineConfig({
   },
   preview: {
     host: '0.0.0.0',
+    port: 8080,
   },
   resolve: {
     alias: {

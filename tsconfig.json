@@ -20,5 +20,9 @@
     "jsxFragmentFactory": "Fragment",
     "baseUrl": ".",
   },
-  "include": ["setupTests.ts", "src"]
+  "include": [
+    "node_modules/vite-plugin-pwa/client.d.ts",
+    "setupTests.ts",
+    "src"
+  ]
 }
