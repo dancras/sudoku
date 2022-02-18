@@ -2,38 +2,42 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { Subject } from 'rxjs';
-import { Writeable } from 'src/RxReact';
+import { peek, Writeable } from 'src/RxReact';
+import { SudokuGame } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { createTestProvider } from 'src/Test/TestContext';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
 import { SpyInstanceFn } from 'vitest';
 
-describe('Start Button', () => {
+let TestProvider: FunctionComponent;
+let mockApp: Writeable<SudokuApp>;
+let startGameSpy: SpyInstanceFn<[], void>;
+let gameStatus$: Subject<SudokuGameStatus>;
+let gameCanStart$: Subject<boolean>;
+let shareSpy: SpyInstanceFn<[SudokuGame], void>;
 
-    let TestProvider: FunctionComponent;
-    let mockApp: Writeable<SudokuApp>;
-    let startGameSpy: SpyInstanceFn<[], void>;
-    let gameStatus$: Subject<SudokuGameStatus>;
-    let gameCanStart$: Subject<boolean>;
-
-    beforeEach(() => {
-        mockApp = createMockSudokuApp();
-        [TestProvider] = createTestProvider(ButtonBarContext, {
-            app: mockApp
-        });
-
-        startGameSpy = mockApp.startGame;
-        gameStatus$ = mockApp.status$;
-        gameCanStart$ = mockApp.canStart$;
-
-        render(
-            <TestProvider>
-                <ButtonBar></ButtonBar>
-            </TestProvider>
-        );
-
+beforeEach(() => {
+    mockApp = createMockSudokuApp();
+    shareSpy = vi.fn();
+    [TestProvider] = createTestProvider(ButtonBarContext, {
+        app: mockApp,
+        share: shareSpy
     });
+
+    startGameSpy = mockApp.startGame;
+    gameStatus$ = mockApp.status$;
+    gameCanStart$ = mockApp.canStart$;
+
+    render(
+        <TestProvider>
+            <ButtonBar></ButtonBar>
+        </TestProvider>
+    );
+
+});
+
+describe('Start Button', () => {
 
     it('disables Start button when canStart$ is false', () => {
         expect(screen.getByText('Start')).toBeDisabled();
@@ -60,7 +64,9 @@ describe('Start Button', () => {
         });
         expect(screen.queryByText('Start')).not.toBeInTheDocument();
     });
+});
 
+describe('New Game Button', () => {
     it('calls newGame when New Game button clicked', () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
@@ -86,7 +92,9 @@ describe('Start Button', () => {
 
         expect(screen.queryByText('New Game')).not.toBeInTheDocument();
     });
+});
 
+describe('Reset Game Button', () => {
     it('calls resetGame when Reset Game button clicked', () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
@@ -107,5 +115,30 @@ describe('Start Button', () => {
 
     it('hides Reset Game when canReset$ is false', () => {
         expect(screen.queryByText('Reset Game')).not.toBeInTheDocument();
+    });
+});
+
+describe('Share Button', () => {
+    it('calls shareGame when clicked', () => {
+        act(() => {
+            gameStatus$.next(SudokuGameStatus.Solving);
+        });
+
+        userEvent.click(screen.getByText('Share'));
+        expect(shareSpy).toHaveBeenCalledWith(peek(mockApp.game$));
+    });
+
+    it('is not showing when Creating', () => {
+        act(() => {
+            gameStatus$.next(SudokuGameStatus.Creating);
+        });
+
+        expect(screen.queryByText('Share')).not.toBeInTheDocument();
+
+        act(() => {
+            gameStatus$.next(SudokuGameStatus.Solved);
+        });
+
+        expect(screen.queryByText('Share')).toBeInTheDocument();
     });
 });

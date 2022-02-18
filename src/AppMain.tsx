@@ -3,6 +3,7 @@ import NoSleep from 'nosleep.js';
 import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { loadFromStorage, mergeUpdates, setupStorage, StorageSchema } from 'src/SaveLoadUndo';
+import { loadSharedGame, shareGame } from 'src/Share/FragmentShare';
 import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import 'src/SudokuApp.css';
@@ -29,6 +30,7 @@ function AppMain() {
         loadFromStorage(storage, app);
         const $updates = mergeUpdates(app);
         setupStorage(storage, $updates);
+        loadSharedGame(app);
     }, []);
 
     function activateNoSleep() {
@@ -45,7 +47,7 @@ function AppMain() {
             <NumberPickerContext.Provider value={{ selectedNumber$ }}>
                 <NumberPicker />
             </NumberPickerContext.Provider>
-            <ButtonBarContext.Provider value={{ app }}>
+            <ButtonBarContext.Provider value={{ app, share: shareGame }}>
                 <ButtonBar />
             </ButtonBarContext.Provider>
         </div>

@@ -1,5 +1,5 @@
 import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap } from 'rxjs';
-import { createSudokuGame, SudokuGame } from 'src/Sudoku';
+import { createSudokuGame, SudokuGame, SudokuGameContents } from 'src/Sudoku';
 import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 
 export default class DefaultApp {
@@ -55,6 +55,15 @@ export default class DefaultApp {
         this.game$.next(createSudokuGame(lockedContents));
         this.updates$.next({
             type: 'ResetGameUpdate'
+        });
+    }
+
+    loadGame(contents: SudokuGameContents) {
+        this.game$.next(createSudokuGame(contents));
+        this.status$.next(SudokuGameStatus.Solving);
+        this.updates$.next({
+            type: 'LoadGameUpdate',
+            contents
         });
     }
 }

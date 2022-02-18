@@ -1,5 +1,5 @@
 import { peek } from 'src/RxReact';
-import { SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
+import { SudokuGameContents, SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
 import StandardSudokuGrid from 'src/Sudoku/StandardSudokuGame';
 
 test('it has 81 cells', () => {
@@ -8,7 +8,7 @@ test('it has 81 cells', () => {
 });
 
 test('it accepts default cell contents', () => {
-    const defaultContents = [] as Array<ValidNumber | null>;
+    const defaultContents = [] as SudokuGameContents;
     defaultContents[1] = null;
     defaultContents[3] = 5;
     // defaultContents[40] left blank to test sparse array

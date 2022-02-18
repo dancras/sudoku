@@ -1,3 +1,3 @@
 export type Share = {
-    loadFromFragment(): void
+    loadSharedGame(): void
 }

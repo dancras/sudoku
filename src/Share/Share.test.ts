@@ -1,11 +1,11 @@
 import { decodeContents, encodeContents } from 'src/Share/ContentsEncoder';
-import { ValidNumber } from 'src/Sudoku';
+import { SudokuGameContents } from 'src/Sudoku';
 
 describe('ContentsEncoder', () => {
 
     it('encodes a contents array to a smaller representation', () => {
 
-        const contents: Array<ValidNumber | null> = Array.from({ length: 81 }).map(() => null);
+        const contents: SudokuGameContents = Array.from({ length: 81 }).map(() => null);
         contents[4] = 7;
         contents[15] = 9;
         contents[20] = 6;

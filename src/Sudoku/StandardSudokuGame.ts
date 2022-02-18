@@ -1,5 +1,5 @@
 import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
-import { SudokuGameUpdate, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { SudokuGameContents, SudokuGameUpdate, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 import SudokuCell from 'src/Sudoku/SudokuCell';
@@ -17,13 +17,13 @@ export default class StandardSudokuGame {
 
     updates$: Observable<SudokuGameUpdate>;
 
-    getContents(): Array<ValidNumber | null> {
+    getContents(): SudokuGameContents {
         return this.gridCells.map(cell => cell.contents$.value);
     }
 
     gridCells: GridCell[];
 
-    constructor(defaultContents?: Array<ValidNumber | null>) {
+    constructor(defaultContents?: SudokuGameContents) {
         this.gridCells = Array.from({ length: 81 }).map(() => new GridCell());
 
         if (defaultContents) {

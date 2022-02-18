@@ -82,6 +82,8 @@ export function loadFromStorage(storage: Persistence<StorageSchema>, app: Sudoku
             game.cells[update.detail.cellIndex].toggleCandidate(update.detail.candidate);
         } else if (update.type === 'AppUpdate' && update.detail.type === 'StartGameUpdate') {
             app.startGame();
+        } else if (update.type === 'AppUpdate' && update.detail.type === 'LoadGameUpdate') {
+            app.loadGame(update.detail.contents);
         }
     });
 }

@@ -1,4 +1,5 @@
 import { peek } from 'src/RxReact';
+import { SudokuGameContents } from 'src/Sudoku';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 import DefaultApp from 'src/SudokuApp/DefaultApp';
@@ -110,6 +111,32 @@ describe('DefaultApp', () => {
 
         expect(updateSpy).toHaveBeenCalledWith({
             type: 'NewGameUpdate'
+        } as SudokuAppUpdate);
+    });
+
+    test('loadGame() replaces the game with one matching contents sets status to Solving and emits', () => {
+        const app = new DefaultApp();
+        const initialGame = peek(app.game$);
+        const contents: SudokuGameContents = Array.from({ length: 81 }).map(() => null);
+        contents[4] = 5;
+        contents[72] = 9;
+
+        const updateSpy = vi.fn();
+        app.updates$.subscribe(updateSpy);
+
+        app.loadGame(contents);
+
+        const loadedGame = peek(app.game$);
+
+        expect(loadedGame).not.toBe(initialGame);
+        expect(loadedGame.getContents()).toEqual(contents);
+        expect(peek(loadedGame.cells[4].isLocked)).toEqual(true);
+        expect(peek(loadedGame.cells[72].isLocked)).toEqual(true);
+        expect(peek(app.status$)).toEqual(SudokuGameStatus.Solving);
+
+        expect(updateSpy).toHaveBeenCalledWith({
+            type: 'LoadGameUpdate',
+            contents
         } as SudokuAppUpdate);
     });
 });

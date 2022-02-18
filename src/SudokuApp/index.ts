@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { SudokuGame } from 'src/Sudoku';
+import { SudokuGame, SudokuGameContents } from 'src/Sudoku';
 import DefaultApp from 'src/SudokuApp/DefaultApp';
 
 export enum SudokuGameStatus {
@@ -14,6 +14,9 @@ export type SudokuAppUpdate = {
     type: 'NewGameUpdate'
 } | {
     type: 'ResetGameUpdate'
+} | {
+    type: 'LoadGameUpdate',
+    contents: SudokuGameContents
 };
 
 export type SudokuApp = {
@@ -25,6 +28,7 @@ export type SudokuApp = {
     startGame(): void
     newGame(): void
     resetGame(): void
+    loadGame(contents: SudokuGameContents): void
 }
 
 export function createSudokuApp() {

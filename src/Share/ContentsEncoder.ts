@@ -1,4 +1,4 @@
-import { ValidNumber } from 'src/Sudoku';
+import { SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
 // https://coolaj86.com/articles/bigints-and-base64-in-javascript/
 function bnToB64(bn: string) {
@@ -61,25 +61,24 @@ const conversions = [
 
 const reverseConversions = [...conversions].reverse();
 
-export function encodeContents(contents: Array<ValidNumber | null>) {
+export function encodeContents(contents: SudokuGameContents) {
     const gridAsString = contents.map(x => x === null ? 0 : x).join('');
-    const gridWithoutZeros = conversions.reduce((acc, [from, to]) => {
+    const trimPreceedingZeros = BigInt(gridAsString).toString();
+    const convertZeroGroups = conversions.reduce((acc, [from, to]) => {
         return acc.replaceAll(from, to);
-    }, gridAsString);
+    }, trimPreceedingZeros);
 
-    // Numbers can't start with 0 but sudoku grid contents can so we need to prefix
-    const withPrefix = '1' + gridWithoutZeros;
-    return base64ToUrlBase64(bnToB64(withPrefix));
+    return base64ToUrlBase64(bnToB64(convertZeroGroups));
 }
 
-export function decodeContents(encoded: string): Array<ValidNumber | null> {
-    const gridWithoutZeros = b64ToBn(urlBase64ToBase64(encoded)).toString();
-    const gridAsString = reverseConversions.reduce((acc, [to, from]) => {
+export function decodeContents(encoded: string): SudokuGameContents {
+    const gridWithConvertedZeros = b64ToBn(urlBase64ToBase64(encoded)).toString();
+    const gridMissingPreceedingZeros = reverseConversions.reduce((acc, [to, from]) => {
         return acc.replaceAll(from, to);
-    }, gridWithoutZeros);
-    const withoutPrefix = gridAsString.substring(1);
+    }, gridWithConvertedZeros);
+    const gridAsString = gridMissingPreceedingZeros.padStart(81, '0');
 
-    return withoutPrefix.split('').map(
+    return gridAsString.split('').map(
         x => x === '0' ? null : parseInt(x, 10) as ValidNumber
     );
 }
