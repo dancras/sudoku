@@ -15,7 +15,6 @@ describe('ContentsEncoder', () => {
         const decodedContents = decodeContents(encodedContents);
 
         expect(encodedContents.length).toBeLessThan(60);
-        console.log(encodedContents);
         expect(decodedContents).toEqual(contents);
 
     });

@@ -20,7 +20,8 @@
   "rules": {
     "indent": "off",
     "@typescript-eslint/indent": ["error", 4, {
-      "ignoredNodes": ["JSXAttribute"]
+      "ignoredNodes": ["JSXAttribute"],
+      "SwitchCase": 1
     }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],

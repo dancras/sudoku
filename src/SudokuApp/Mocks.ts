@@ -13,5 +13,6 @@ export function createMockSudokuApp(): Writeable<SudokuApp> {
         startGame: vi.fn(),
         newGame: vi.fn(),
         resetGame: vi.fn(),
+        loadGame: vi.fn(),
     };
 }
