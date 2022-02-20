@@ -1,10 +1,10 @@
 import createPersistence, { Persistence } from '@vitorluizc/persistence';
 import { createSaveLoadUndo, StorageSchema, StorageSchemaVersion } from 'src/SaveLoadUndo';
 import { ManagedUpdate, mergeUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
+import { createCellUpdate } from 'src/SaveLoadUndo/Mock';
 import { SudokuGameUpdate } from 'src/Sudoku';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
-import { createCellUpdate } from './Mock';
 
 const START_GAME_UPDATE: ManagedUpdate = {
     type: 'AppUpdate',

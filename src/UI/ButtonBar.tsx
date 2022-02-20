@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { IoArrowRedoOutline, IoArrowUndoOutline, IoPlayOutline, IoRefresh, IoShareOutline, IoTrashOutline } from 'react-icons/io5';
 import { defineDependencies, useObservable } from 'src/RxReact';
 import { SaveLoadUndo } from 'src/SaveLoadUndo';
 import { SudokuGame } from 'src/Sudoku';
@@ -25,12 +26,12 @@ export default function ButtonBar() {
 
     return (
         <div className="ButtonBar">
-            <button onClick={() => saveLoadUndo.undo()}>Undo</button>
-            { showStartButton && <button disabled={ !canStart } onClick={() =>  app.startGame()}>Start</button> }
-            { showNewGameButton && <button onClick={() => app.newGame()}>New Game</button> }
-            { showResetGameButton && <button onClick={() => app.resetGame()}>Reset Game</button> }
-            <button onClick={() => saveLoadUndo.redo()}>Redo</button>
-            { showShareButton && <button onClick={() => share(game)}>Share</button> }
+            <button onClick={() => saveLoadUndo.undo()}><IoArrowUndoOutline /></button>
+            { showStartButton && <button disabled={ !canStart } onClick={() =>  app.startGame()} data-testid="button-bar-start"><IoPlayOutline /></button> }
+            { showNewGameButton && <button onClick={() => app.newGame()} data-testid="button-bar-new"><IoTrashOutline /></button> }
+            { showResetGameButton && <button onClick={() => app.resetGame()} data-testid="button-bar-reset"><IoRefresh /></button> }
+            <button disabled={ !showShareButton } onClick={() => share(game)} data-testid="button-bar-share"><IoShareOutline /></button>
+            <button onClick={() => saveLoadUndo.redo()}><IoArrowRedoOutline /></button>
         </div>
     );
 }

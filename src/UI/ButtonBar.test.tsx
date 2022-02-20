@@ -17,12 +17,45 @@ let gameStatus$: Subject<SudokuGameStatus>;
 let gameCanStart$: Subject<boolean>;
 let shareSpy: SpyInstanceFn<[SudokuGame], void>;
 
+function getStartButton() {
+    return screen.getByTestId('button-bar-start');
+}
+
+function queryStartButton() {
+    return screen.queryByTestId('button-bar-start');
+}
+
+function getNewGameButton() {
+    return screen.getByTestId('button-bar-new');
+}
+
+function queryNewGameButton() {
+    return screen.queryByTestId('button-bar-new');
+}
+
+function getResetGameButton() {
+    return screen.getByTestId('button-bar-reset');
+}
+
+function queryResetGameButton() {
+    return screen.queryByTestId('button-bar-reset');
+}
+
+function getShareButton() {
+    return screen.getByTestId('button-bar-share');
+}
+
 beforeEach(() => {
     mockApp = createMockSudokuApp();
     shareSpy = vi.fn();
     [TestProvider] = createTestProvider(ButtonBarContext, {
         app: mockApp,
-        share: shareSpy
+        share: shareSpy,
+        saveLoadUndo: {
+            undo: vi.fn(),
+            redo: vi.fn(),
+            setup: vi.fn()
+        }
     });
 
     startGameSpy = mockApp.startGame;
@@ -40,7 +73,7 @@ beforeEach(() => {
 describe('Start Button', () => {
 
     it('disables Start button when canStart$ is false', () => {
-        expect(screen.getByText('Start')).toBeDisabled();
+        expect(getStartButton()).toBeDisabled();
     });
 
     it('it calls startGame when Start clicked and status is Creating', () => {
@@ -48,7 +81,7 @@ describe('Start Button', () => {
             gameCanStart$.next(true);
         });
 
-        userEvent.click(screen.getByText('Start'));
+        userEvent.click(getStartButton());
 
         expect(startGameSpy).toHaveBeenCalled();
     });
@@ -57,12 +90,12 @@ describe('Start Button', () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
         });
-        expect(screen.queryByText('Start')).not.toBeInTheDocument();
+        expect(queryStartButton()).not.toBeInTheDocument();
 
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solved);
         });
-        expect(screen.queryByText('Start')).not.toBeInTheDocument();
+        expect(queryStartButton()).not.toBeInTheDocument();
     });
 });
 
@@ -72,7 +105,7 @@ describe('New Game Button', () => {
             gameStatus$.next(SudokuGameStatus.Solving);
         });
 
-        userEvent.click(screen.getByText('New Game'));
+        userEvent.click(getNewGameButton());
         expect(mockApp.newGame).toHaveBeenCalled();
     });
 
@@ -81,7 +114,7 @@ describe('New Game Button', () => {
             gameStatus$.next(SudokuGameStatus.Creating);
         });
 
-        expect(screen.queryByText('New Game')).not.toBeInTheDocument();
+        expect(queryNewGameButton()).not.toBeInTheDocument();
     });
 
     it('hides New Game when reset button is showing instead', () => {
@@ -90,7 +123,7 @@ describe('New Game Button', () => {
             mockApp.canReset$.next(true);
         });
 
-        expect(screen.queryByText('New Game')).not.toBeInTheDocument();
+        expect(queryNewGameButton()).not.toBeInTheDocument();
     });
 });
 
@@ -101,7 +134,7 @@ describe('Reset Game Button', () => {
             mockApp.canReset$.next(true);
         });
 
-        userEvent.click(screen.getByText('Reset Game'));
+        userEvent.click(getResetGameButton());
         expect(mockApp.resetGame).toHaveBeenCalled();
     });
 
@@ -110,11 +143,11 @@ describe('Reset Game Button', () => {
             gameStatus$.next(SudokuGameStatus.Creating);
         });
 
-        expect(screen.queryByText('Reset Game')).not.toBeInTheDocument();
+        expect(queryResetGameButton()).not.toBeInTheDocument();
     });
 
     it('hides Reset Game when canReset$ is false', () => {
-        expect(screen.queryByText('Reset Game')).not.toBeInTheDocument();
+        expect(queryResetGameButton()).not.toBeInTheDocument();
     });
 });
 
@@ -124,21 +157,22 @@ describe('Share Button', () => {
             gameStatus$.next(SudokuGameStatus.Solving);
         });
 
-        userEvent.click(screen.getByText('Share'));
+        userEvent.click(getShareButton());
         expect(shareSpy).toHaveBeenCalledWith(peek(mockApp.game$));
+        expect(getShareButton()).not.toBeDisabled();
     });
 
-    it('is not showing when Creating', () => {
+    it('is disabled when Creating', () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Creating);
         });
 
-        expect(screen.queryByText('Share')).not.toBeInTheDocument();
+        expect(getShareButton()).toBeDisabled();
 
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solved);
         });
 
-        expect(screen.queryByText('Share')).toBeInTheDocument();
+        expect(getShareButton()).not.toBeDisabled();
     });
 });
