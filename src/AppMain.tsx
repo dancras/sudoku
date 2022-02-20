@@ -2,7 +2,7 @@ import createPersistence from '@vitorluizc/persistence';
 import NoSleep from 'nosleep.js';
 import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { loadFromStorage, mergeUpdates, setupStorage, StorageSchema } from 'src/SaveLoadUndo';
+import { createSaveLoadUndo, StorageSchema } from 'src/SaveLoadUndo';
 import { loadSharedGame, shareGame } from 'src/Share/FragmentShare';
 import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
@@ -24,12 +24,11 @@ if (!navigator.userAgent.includes('jsdom')) {
 function AppMain() {
     const selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     const app = createSudokuApp();
+    const storage = createPersistence<StorageSchema>('SaveLoadUndo');
+    const saveLoadUndo = createSaveLoadUndo(storage, app);
 
     useEffect(() => {
-        const storage = createPersistence<StorageSchema>('SaveLoadUndo');
-        loadFromStorage(storage, app);
-        const $updates = mergeUpdates(app);
-        setupStorage(storage, $updates);
+        saveLoadUndo.setup();
         loadSharedGame(app);
     }, []);
 
@@ -47,7 +46,7 @@ function AppMain() {
             <NumberPickerContext.Provider value={{ selectedNumber$ }}>
                 <NumberPicker />
             </NumberPickerContext.Provider>
-            <ButtonBarContext.Provider value={{ app, share: shareGame }}>
+            <ButtonBarContext.Provider value={{ app, share: shareGame, saveLoadUndo }}>
                 <ButtonBar />
             </ButtonBarContext.Provider>
         </div>

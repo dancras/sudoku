@@ -1,5 +1,5 @@
 import { Writeable } from 'src/RxReact';
-import { ManagedUpdate } from 'src/SaveLoadUndo';
+import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
 import { createCandidateUpdate, createCellUpdate, createLoadGameUpdate, createNewGameUpdate, createStartGameUpdate } from 'src/SaveLoadUndo/Mock';
 import { replayUpdate, replayUpdates, rollbackUpdate } from 'src/SaveLoadUndo/ReplayRollback';
 import { SudokuGame, ValidNumber } from 'src/Sudoku';
@@ -191,7 +191,7 @@ describe('rollbackUpdate', () => {
         expect(app.startGame).toHaveBeenCalled();
     });
 
-    it('rolls back any AppUpdate by replaying all events if no recent game starting AppUpdate', () => {
+    it('rolls back any AppUpdate by starting a new game and replaying all events if no recent game starting AppUpdate', () => {
         const updates: ManagedUpdate[] = [
             createCellUpdate(20, 6),
             createStartGameUpdate()
@@ -199,6 +199,7 @@ describe('rollbackUpdate', () => {
 
         rollbackUpdate(app, game, updates, createLoadGameUpdate([]));
 
+        expect(app.newGame).toHaveBeenCalled();
         expect(game.cells[20].toggleContents).toHaveBeenCalledWith(6);
         expect(app.startGame).toHaveBeenCalled();
     });

@@ -1,5 +1,5 @@
 import { of, withLatestFrom } from 'rxjs';
-import { ManagedUpdate } from 'src/SaveLoadUndo';
+import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
 import { SudokuGame, SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
 import { SudokuApp, SudokuAppUpdate } from 'src/SudokuApp';
 
@@ -93,6 +93,11 @@ function rollbackAppUpdate(app: SudokuApp, updates: ManagedUpdate[]) {
     const i = reversedUpdates.findIndex(update => update.type === 'AppUpdate' && ['NewGameUpdate', 'LoadGameUpdate'].includes(update.detail.type));
     const replaySliceEnd = i === -1 ? reversedUpdates.length : i + 1;
     const updatesForReplay = reversedUpdates.slice(0, replaySliceEnd).reverse();
+
+    if (i === -1) {
+        app.newGame();
+    }
+
     replayUpdates(app, updatesForReplay);
 }
 

@@ -1,4 +1,4 @@
-import { ManagedUpdate } from 'src/SaveLoadUndo';
+import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
 import { SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
 export function createCellUpdate(cellIndex: number, contents: ValidNumber | null): ManagedUpdate {

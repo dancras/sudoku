@@ -1,7 +1,9 @@
 import { Persistence } from '@vitorluizc/persistence';
-import { map, merge, Observable, of, scan, switchMap, withLatestFrom } from 'rxjs';
-import { SudokuGameUpdate } from 'src/Sudoku';
-import { SudokuApp, SudokuAppUpdate } from 'src/SudokuApp';
+import { Subject, withLatestFrom } from 'rxjs';
+import { ManagedUpdate, mergeUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
+import { replayUpdate, replayUpdates, rollbackUpdate } from 'src/SaveLoadUndo/ReplayRollback';
+import UndoRedoCollector from 'src/SaveLoadUndo/UndoRedoCollector';
+import { SudokuApp } from 'src/SudokuApp';
 
 export enum StorageSchemaVersion {
     One
@@ -9,81 +11,48 @@ export enum StorageSchemaVersion {
 
 export type StorageSchema = {
     version: StorageSchemaVersion,
-    updates: ManagedUpdate[]
+    data: [ManagedUpdate[], ManagedUpdate[]]
 }
 
-export type ManagedUpdate = {
-    type: 'AppUpdate',
-    detail: SudokuAppUpdate
-} | {
-    type: 'GridUpdate',
-    detail: SudokuGameUpdate
+export type SaveLoadUndo = {
+    undo(): void
+    redo(): void
+    setup(): void
 }
 
-export type ManagedUpdates = Observable<ManagedUpdate>;
+export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: SudokuApp): SaveLoadUndo {
+    const data = storage.get()?.data || [[], []];
+    const collectorSource$ = new Subject<ManagedUpdate>();
 
-export function mergeUpdates(app: SudokuApp): ManagedUpdates {
-    return merge(
-        app.updates$.pipe(
-            map(detail => ({
-                type: 'AppUpdate',
-                detail
-            } as ManagedUpdate))
-        ),
-        app.game$.pipe(
-            switchMap(game => game.updates$),
-            map(detail => ({
-                type: 'GridUpdate',
-                detail
-            } as ManagedUpdate))
-        )
-    );
-}
+    const collector = new UndoRedoCollector(collectorSource$, data);
 
-function isStartGameUpdate(update: ManagedUpdate): boolean {
-    return update.type === 'AppUpdate' && update.detail.type === 'StartGameUpdate';
-}
+    return {
+        undo() {
+            collector.undo();
+        },
+        redo() {
+            collector.redo();
+        },
+        setup() {
+            replayUpdates(app, data[0]);
 
-export function setupStorage(storage: Persistence<StorageSchema>, updates$: ManagedUpdates) {
+            mergeUpdates(app).subscribe(collectorSource$);
 
-    const initialUpdates = storage.get()?.updates || [];
+            collector.collection$.subscribe(data => {
+                storage.set({
+                    version: StorageSchemaVersion.One,
+                    data
+                });
+            });
 
-    return updates$.pipe(
-        scan((acc, next) => {
-            if (next.type === 'AppUpdate' && next.detail.type === 'NewGameUpdate') {
-                return [];
-            } else if (next.type === 'AppUpdate' && next.detail.type === 'ResetGameUpdate') {
-                while (acc.length > 0 && !isStartGameUpdate(acc[acc.length - 1])) {
-                    acc.pop();
+            collector.updates$.pipe(withLatestFrom(app.game$)).subscribe(([update, game]) => {
+                if (update.type === 'Undo') {
+                    rollbackUpdate(app, game, update.history, update.affected);
+                } else {
+                    replayUpdate(app, game, update.affected);
                 }
-                return acc;
-            } else {
-                return acc.concat(next);
-            }
-        }, initialUpdates)
-    ).subscribe(updates => {
-        storage.set({
-            version: StorageSchemaVersion.One,
-            updates
-        });
-    });
-
-}
-
-export function loadFromStorage(storage: Persistence<StorageSchema>, app: SudokuApp) {
-    const updates = storage.get()?.updates || [];
-
-    of(...updates).pipe(
-        withLatestFrom(app.game$)
-    ).subscribe(([update, game]) => {
-        if (update.type === 'GridUpdate' && update.detail.type === 'CellUpdate') {
-            game.cells[update.detail.cellIndex].toggleContents(update.detail.contents);
-        } else if (update.type === 'GridUpdate' && update.detail.type === 'CandidateUpdate') {
-            game.cells[update.detail.cellIndex].toggleCandidate(update.detail.candidate);
-        } else if (update.type === 'AppUpdate' && update.detail.type === 'StartGameUpdate') {
-            app.startGame();
-        } else if (update.type === 'AppUpdate' && update.detail.type === 'LoadGameUpdate') {
-            app.loadGame(update.detail.contents);
+            });
         }
-    });
+    };
+
 }
