@@ -23,7 +23,6 @@ body {
   --green: rgb(179, 219, 130);
   --red: rgb(237, 108, 137);
   --blue: rgb(145, 218, 230);
-  --blue-dull: rgb(83, 130, 138);
   touch-action: manipulation;
 
   height: 100vh;

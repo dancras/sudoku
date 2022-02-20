@@ -5,8 +5,9 @@
   --candidate-color: var(--yellow);
   --highlight-color: var(--blue);
   --error-color: var(--red);
-  --locked-color: var(--purple);
-  --highlight-locked-color: var(--blue-dull);
+  --locked-background-color: var(--purple);
+  --locked-color: var(--dark-grey);
+  --highlight-locked-color: var(--blue);
   --zebra-vertical: var(--dark-grey-intense);
   user-select: none;
 
@@ -65,6 +66,10 @@
   color: var(--error-color);
 }
 
+.SudokuGrid .--Cell.-Locked {
+  background-color: var(--locked-background-color);
+}
+
 .SudokuGrid .-Locked .--Contents {
   color: var(--locked-color);
 }
@@ -112,4 +117,7 @@
 /* Zebra Stripes */
 .SudokuGrid .--Cell:nth-child(3n + 2) {
   background-color: var(--zebra-vertical);
+}
+.SudokuGrid .--Cell.-Locked:nth-child(3n + 2) {
+  background-color: var(--locked-background-color);
 }
