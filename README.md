@@ -1,4 +1,4 @@
-# Sudoku React
+# Sudoku React with RxJS
 
 Playable at [dancras.co.uk/sudoku/](https://dancras.co.uk/sudoku/)
 
