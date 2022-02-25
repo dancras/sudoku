@@ -2,6 +2,7 @@ import createPersistence from '@vitorluizc/persistence';
 import NoSleep from 'nosleep.js';
 import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
+import { extractGridFromImage } from 'src/GridFromImage';
 import { createSaveLoadUndo, StorageSchema } from 'src/SaveLoadUndo';
 import { loadSharedGame, shareGame } from 'src/Share/FragmentShare';
 import { ValidNumber } from 'src/Sudoku';
@@ -38,6 +39,12 @@ function AppMain() {
         }
     }
 
+    function gridFromImage(image: HTMLCanvasElement) {
+        return extractGridFromImage(image, () => null).then((contents) => {
+            app.loadGame(contents);
+        });
+    }
+
     return (
         <div className="SudokuApp" onClick={activateNoSleep}>
             <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
@@ -46,7 +53,7 @@ function AppMain() {
             <NumberPickerContext.Provider value={{ selectedNumber$ }}>
                 <NumberPicker />
             </NumberPickerContext.Provider>
-            <ButtonBarContext.Provider value={{ app, share: shareGame, saveLoadUndo }}>
+            <ButtonBarContext.Provider value={{ app, share: shareGame, saveLoadUndo, gridFromImage }}>
                 <ButtonBar />
             </ButtonBarContext.Provider>
         </div>
