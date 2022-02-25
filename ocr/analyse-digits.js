@@ -7,10 +7,29 @@ const { createCanvas, loadImage } = canvas;
 // Try dilate pass with randomness
 
 // context.font="italic small-caps bold 12px arial";
+
+// const width = 26;
+// const height = 35;
+// const fontHeights = [33, 32, 31, 30];
+// console.log('CORRECT', [
+//     '9', '5', '8', '7', '9', '4',
+//     '1', '9', '2', '6', '3', '5',
+//     '1', '6', '8', '3', '7', '1',
+//     '2', '4', '2', '9', '5', '1',
+//     '3', '2', '8', '3', '5', '1'
+// ]);
+
 const width = 19;
 const height = 23;
-const fontHeight = 22;
-const heightPad = Math.round((height - fontHeight) / 2);
+const fontHeights = [22, 21, 20, 19];
+console.log('CORRECT', [
+    '8', '5', '8', '7', '1', '4',
+    '9', '7', '6', '7', '1', '2',
+    '5', '8', '1', '6', '1', '7',
+    '1', '5', '2', '9', '7', '4',
+    '6', '8', '3', '9', '4', '3',
+    '5', '9', '8'
+]);
 
 const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const fonts = [
@@ -31,19 +50,22 @@ let digitCanvases = [];
 for (let digit of digits) {
     for (let font of fonts) {
         for (let style of styles) {
-            const c = createCanvas(width, height);
-            const ctx = c.getContext('2d');
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = 'black';
-            const fontSize = calculateFontSize(ctx, style, font);
-            ctx.font = `${style} ${fontSize}px ${font}`;
-            const measurements = ctx.measureText(digit);
-            const renderedWidth = measurements.actualBoundingBoxLeft + measurements.actualBoundingBoxRight;
-            const x = measurements.actualBoundingBoxLeft + Math.round((width - renderedWidth) / 2);
-            ctx.fillText(digit, x, height - heightPad);
+            for (let fontHeight of fontHeights) {
+                const c = createCanvas(width, height);
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = 'black';
+                const fontSize = calculateFontSize(ctx, style, font, fontHeight);
+                ctx.font = `${style} ${fontSize}px ${font}`;
+                const measurements = ctx.measureText(digit);
+                const renderedWidth = measurements.actualBoundingBoxLeft + measurements.actualBoundingBoxRight;
+                const x = measurements.actualBoundingBoxLeft + Math.round((width - renderedWidth) / 2);
+                const heightPad = Math.round((height - fontHeight) / 2);
+                ctx.fillText(digit, x, height - heightPad);
 
-            digitCanvases.push([c, digit]);
+                digitCanvases.push([c, digit]);
+            }
         }
     }
 }
@@ -75,9 +97,11 @@ const trainingLabels = digitCanvases.map(x => x[1]);
 const trainingData = digitCanvases.map(x => createDataFromCanvas(x[0]));
 
 const knn = new KNN(trainingData, trainingLabels);
-const cellPaths = fs.readdirSync('ocr/find-puzzle/').map(fileName => `ocr/find-puzzle/${fileName}`);
+const cellPaths = fs.readdirSync('ocr/find-puzzle/')
+    .filter(fileName => fileName.indexOf('cell_') === 0)
+    .map(fileName => `ocr/find-puzzle/${fileName}`);
 
-console.log(cellPaths);
+// console.log(cellPaths);
 
 Promise.all(cellPaths.map(loadImage)).then(images => {
     const testData = images.map(createDataFromImage);
@@ -117,7 +141,7 @@ function createDataFromCanvas(digitCanvas) {
     return pixels;
 }
 
-function calculateFontSize(ctx, style, font) {
+function calculateFontSize(ctx, style, font, fontHeight) {
     let fontSize = fontHeight;
     let renderedFontHeight = 0;
 
