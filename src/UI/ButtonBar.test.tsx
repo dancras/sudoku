@@ -45,6 +45,10 @@ function getShareButton() {
     return screen.getByTestId('button-bar-share');
 }
 
+function queryShareButton() {
+    return screen.queryByTestId('button-bar-share');
+}
+
 beforeEach(() => {
     mockApp = createMockSudokuApp();
     shareSpy = vi.fn();
@@ -55,7 +59,8 @@ beforeEach(() => {
             undo: vi.fn(),
             redo: vi.fn(),
             setup: vi.fn()
-        }
+        },
+        gridFromImage: vi.fn()
     });
 
     startGameSpy = mockApp.startGame;
@@ -162,17 +167,17 @@ describe('Share Button', () => {
         expect(getShareButton()).not.toBeDisabled();
     });
 
-    it('is disabled when Creating', () => {
+    it('is removed when Creating', () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Creating);
         });
 
-        expect(getShareButton()).toBeDisabled();
+        expect(queryShareButton()).not.toBeInTheDocument();
 
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solved);
         });
 
-        expect(getShareButton()).not.toBeDisabled();
+        expect(getShareButton()).toBeInTheDocument();
     });
 });
