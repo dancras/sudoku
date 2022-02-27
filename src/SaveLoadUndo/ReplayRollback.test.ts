@@ -72,11 +72,12 @@ describe('replayUpdate()', () => {
             type: 'AppUpdate',
             detail: {
                 type: 'LoadGameUpdate',
-                contents: [1, 2, 3]
+                contents: [1, 2, 3],
+                startGame: true
             }
         });
 
-        expect(app.loadGame).toHaveBeenCalledWith([1, 2, 3]);
+        expect(app.loadGame).toHaveBeenCalledWith([1, 2, 3], true);
     });
 
     it('calls equivalent function for each other AppUpdate', () => {
@@ -132,7 +133,7 @@ describe('rollbackUpdate', () => {
         const contents = Array.from({ 50: 6, length: 81 }).map(x => x ? x as ValidNumber : null);
         const updates: ManagedUpdate[] = [
             createCellUpdate(50, 4),
-            createLoadGameUpdate(contents)
+            createLoadGameUpdate(contents, true)
         ];
 
         rollbackUpdate(app, game, updates, createCellUpdate(50, 2));
@@ -177,7 +178,7 @@ describe('rollbackUpdate', () => {
         const updates: ManagedUpdate[] = [
             createCellUpdate(50, 4),
             createNewGameUpdate(),
-            createLoadGameUpdate([1, 2, 3]),
+            createLoadGameUpdate([1, 2, 3], true),
             createCellUpdate(20, 6),
             createStartGameUpdate()
         ];
@@ -186,7 +187,7 @@ describe('rollbackUpdate', () => {
 
         expect(game.cells[50].toggleContents).not.toHaveBeenCalled();
         expect(app.newGame).not.toHaveBeenCalled();
-        expect(app.loadGame).toHaveBeenCalledWith([1, 2, 3]);
+        expect(app.loadGame).toHaveBeenCalledWith([1, 2, 3], true);
         expect(game.cells[20].toggleContents).toHaveBeenCalledWith(6);
         expect(app.startGame).toHaveBeenCalled();
     });
@@ -197,7 +198,7 @@ describe('rollbackUpdate', () => {
             createStartGameUpdate()
         ];
 
-        rollbackUpdate(app, game, updates, createLoadGameUpdate([]));
+        rollbackUpdate(app, game, updates, createLoadGameUpdate([], true));
 
         expect(app.newGame).toHaveBeenCalled();
         expect(game.cells[20].toggleContents).toHaveBeenCalledWith(6);

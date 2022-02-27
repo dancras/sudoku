@@ -33,12 +33,13 @@ export function createNewGameUpdate(): ManagedUpdate {
     };
 }
 
-export function createLoadGameUpdate(contents: SudokuGameContents): ManagedUpdate {
+export function createLoadGameUpdate(contents: SudokuGameContents, startGame: boolean): ManagedUpdate {
     return {
         type: 'AppUpdate',
         detail: {
             type: 'LoadGameUpdate',
-            contents
+            contents,
+            startGame
         }
     };
 }
