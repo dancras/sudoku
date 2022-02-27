@@ -35,11 +35,23 @@ export function applyThreshold(canvas: EasyCanvas) {
 }
 
 export function applyMask(canvas: EasyCanvas, mask: number[]) {
+    const pixels = mask.map(i => canvas.pixels[i]);
+
     for (const pixel of canvas.pixels) {
-        if (!mask.includes(pixel.i)) {
+        pixel.a = 0;
+    }
+
+    for (const pixel of pixels) {
+        pixel.a = 255;
+    }
+
+    for (const pixel of canvas.pixels) {
+        if (pixel.a === 0) {
+            pixel.a = 255;
             pixel.setRGB(255);
         }
     }
+
     return canvas;
 }
 

@@ -136,4 +136,10 @@ class EasyPixelImpl {
         const j = this.i * 4;
         data[j + 3] = a;
     }
+
+    get a() {
+        const data = this.easyCanvas[_data];
+        const j = this.i * 4;
+        return data[j + 3];
+    }
 }
