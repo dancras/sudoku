@@ -36,7 +36,7 @@ function AppMain() {
     }, []);
 
     function handleClick() {
-        if (typeof process !== 'undefined' && process.env.JEST_WORKER_ID === undefined) {
+        if (typeof process === 'undefined' || process.env.JEST_WORKER_ID === undefined) {
             noSleep.enable();
         }
 
