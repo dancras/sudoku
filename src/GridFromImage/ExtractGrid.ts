@@ -104,7 +104,6 @@ export async function extractGrid(
 
     await onProgress({ step: 'Padding Canvases' });
     const meanHeight = Math.round(heightSum / digitGroups.length);
-    console.log('file dimensions', maxDigitWidth, maxDigitHeight, 'font size', meanHeight);
 
     const extractDigits = digitCanvases.map(([cellNumber, digitCanvas]) => [
         cellNumber,

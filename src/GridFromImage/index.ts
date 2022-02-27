@@ -2,6 +2,8 @@ import { analyseDigits } from 'src/GridFromImage/AnalyseDigits';
 import { extractGrid } from 'src/GridFromImage/ExtractGrid';
 import { SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
+const IMAGE_MAX_WIDTH = 600;
+
 export type GridFromImageProgress = {
     step: string
 };
@@ -22,4 +24,22 @@ export async function extractGridFromImage(
     });
 
     return Promise.resolve(sudokuContents);
+}
+
+export function createCanvasFromFile(file: File) {
+    return new Promise<HTMLCanvasElement>((resolve) => {
+        const img = new Image();
+        img.onload = function () {
+            const resize = document.createElement('canvas');
+            const resizeFactor = IMAGE_MAX_WIDTH / img.width;
+            resize.width = IMAGE_MAX_WIDTH;
+            resize.height = img.height * resizeFactor;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const ctx = resize.getContext('2d')!;
+            ctx.drawImage(img, 0, 0, resize.width, resize.height);
+            URL.revokeObjectURL(img.src);
+            resolve(resize);
+        };
+        img.src = URL.createObjectURL(file);
+    });
 }
