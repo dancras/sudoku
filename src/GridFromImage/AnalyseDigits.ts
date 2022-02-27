@@ -1,4 +1,5 @@
 import KNN from 'ml-knn';
+import { GridFromImageProgress } from 'src/GridFromImage';
 import { createCanvas } from 'src/GridFromImage/Util';
 
 const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -15,13 +16,15 @@ const fonts = [
 ];
 const styles = ['bold', ''];
 
-export function analyseDigits(
-    width: number, height: number, meanFontHeight: number, testSet: HTMLCanvasElement[]
+export async function analyseDigits(
+    width: number, height: number, meanFontHeight: number, testSet: HTMLCanvasElement[],
+    onProgress: (progress: GridFromImageProgress) => Promise<void>
 ) {
     const fontHeights = [meanFontHeight, meanFontHeight - 1, meanFontHeight - 2, meanFontHeight - 3];
 
     let digitCanvases: [HTMLCanvasElement, number][] = [];
 
+    await onProgress({ step: 'Generating Font Combinations' });
     for (const digit of digits) {
         for (const font of fonts) {
             for (const style of styles) {
@@ -46,6 +49,7 @@ export function analyseDigits(
         }
     }
 
+    await onProgress({ step: 'Generating Training Set' });
     digitCanvases = digitCanvases.flatMap(([originalCanvas, i]) => [
         [originalCanvas, i],
         [shiftCanvas(originalCanvas, 1, 0), i],
@@ -56,11 +60,13 @@ export function analyseDigits(
 
     // renderTrainingSet(digitCanvases);
 
+    await onProgress({ step: 'Training KNN Model' });
     const trainingLabels = digitCanvases.map(x => x[1]);
     const trainingData = digitCanvases.map(x => createDataFromCanvas(x[0]));
 
     const knn = new KNN(trainingData, trainingLabels);
 
+    await onProgress({ step: 'Running KNN Model' });
     const testData = testSet.map(createDataFromCanvas);
 
     return knn.predict(testData);

@@ -13,6 +13,7 @@ body {
 }
 
 .SudokuApp {
+  --beige: rgb(252, 249, 244);
   --orange: rgb(238, 157, 112);
   --purple: rgb(168, 157, 234);
   --dark-purple: rgb(95, 88, 134);
@@ -31,10 +32,15 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: start;
+  position: relative;
 }
 
 .SudokuApp > * {
   margin: 0.2em 0;
+}
+
+.SudokuApp .Messages {
+  font-size: 0.5em;
 }
 
 .ButtonBar {

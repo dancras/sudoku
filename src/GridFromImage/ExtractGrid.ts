@@ -1,3 +1,4 @@
+import { GridFromImageProgress } from 'src/GridFromImage';
 import { applyTransform, getNormalizationCoefficients, QuadPoints } from 'src/GridFromImage/change-perspective';
 import { findConnectedPixels, findCorners, findExtremities } from 'src/GridFromImage/EasyAnalyse';
 import EasyCanvas from 'src/GridFromImage/EasyCanvas.js';
@@ -20,23 +21,28 @@ function intersectsWithCenter(w: number, h: number): [number, number] {
     return [Math.floor(w * 0.25) + startOfMiddleRow, Math.floor(w * 0.75) + startOfMiddleRow];
 }
 
-// export async function extractGrid(image: HTMLImageElement) {
-export function extractGrid(image: HTMLImageElement | HTMLCanvasElement) {
+export async function extractGrid(
+    image: HTMLImageElement | HTMLCanvasElement,
+    onProgress: (progress: GridFromImageProgress) => Promise<void>
+) {
+    await onProgress({ step: 'Preparing image' });
     const imgWidth = image.width;
     const imgHeight = image.height;
 
-    // const original = new EasyCanvas(await createCanvas(imgWidth, imgHeight));
     const original = new EasyCanvas(createCanvas, imgWidth, imgHeight);
     original.fill('white');
     original.drawImage(image);
 
-    // const working = original.clone(await createCanvas());
     const working = original.clone();
+
+    await onProgress({ step: 'Applying Filters' });
 
     applyThreshold(applyGreyscale(working));
 
+    await onProgress({ step: 'Finding Connected Pixels' });
     const pixelGroups = findConnectedPixels(working, 0);
 
+    await onProgress({ step: 'Finding Grid' });
     const intersectPixels = range(...intersectsWithCenter(imgWidth, imgHeight));
 
     const intersectingGroups = pixelGroups.filter(pixels => pixels.findIndex(pixel => intersectPixels.includes(pixel.i)) !== -1);
@@ -56,17 +62,21 @@ export function extractGrid(image: HTMLImageElement | HTMLCanvasElement) {
 
     const transformer = createPerspectiveTransformer(srcCorners, destCorners);
 
-    // const transformedWorking = await transformer(working);
+    await onProgress({ step: 'Transforming Grid Perspective' });
     const transformedWorking = transformer(working);
     erode(transformedWorking);
 
+    await onProgress({ step: 'Finding Digits' });
     const digitGroups = findConnectedPixels(transformedWorking, 0);
 
-    // const result = await transformer(original);
+    await onProgress({ step: 'Transforming Perspective Again' });
     const result = transformer(original);
 
+    await onProgress({ step: 'Applying Filters Again' });
     applyGreyscale(result);
     applyDarken(result);
+
+    await onProgress({ step: 'Applying Digit Mask' });
     applyMask(result, digitGroups.flat().map(pixel => pixel.i));
 
     const cellWidth = result.w / 9;
@@ -76,10 +86,9 @@ export function extractGrid(image: HTMLImageElement | HTMLCanvasElement) {
     let maxDigitHeight = 0;
     let heightSum = 0;
 
-    // const digitCanvases = await Promise.all(digitGroups.map(async (group) => {
+    await onProgress({ step: 'Creating Digit Canvases' });
     const digitCanvases = digitGroups.map((group) => {
         const extremities = findExtremities(result, group);
-        // const digitCanvas = result.crop(await createCanvas(), extremities[0], extremities[2]);
         const digitCanvas = result.crop(extremities[0], extremities[2]);
 
         const row = Math.floor(extremities[0].y / cellHeight);
@@ -93,13 +102,12 @@ export function extractGrid(image: HTMLImageElement | HTMLCanvasElement) {
         return [cellNumber, digitCanvas] as [number, EasyCanvas];
     });
 
+    await onProgress({ step: 'Padding Canvases' });
     const meanHeight = Math.round(heightSum / digitGroups.length);
     console.log('file dimensions', maxDigitWidth, maxDigitHeight, 'font size', meanHeight);
 
-    // return Promise.all(digitCanvases.map(async ([cellNumber, digitCanvas]) => [
     const extractDigits = digitCanvases.map(([cellNumber, digitCanvas]) => [
         cellNumber,
-        // padCanvas(await createCanvas(maxDigitWidth, maxDigitHeight), digitCanvas)
         padCanvas(createCanvas, digitCanvas, maxDigitWidth, maxDigitHeight)
     ] as [number, EasyCanvas]);
 
@@ -115,10 +123,8 @@ function createPerspectiveTransformer(src: QuadPoints, dest: QuadPoints) {
     const tlx = dest[0];
     const tly = dest[1];
 
-    // return async (srcCanvas: EasyCanvas) => {
     return (srcCanvas: EasyCanvas) => {
         const resultCanvas = new EasyCanvas(createCanvas, width, height);
-        // const resultCanvas = new EasyCanvas(await createCanvas(width, height));
 
         for (const pixel of resultCanvas.pixels) {
             const [sx, sy] = applyTransform(coeffs, pixel.x + tlx, pixel.y + tly);

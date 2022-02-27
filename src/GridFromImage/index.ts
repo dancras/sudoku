@@ -3,16 +3,17 @@ import { extractGrid } from 'src/GridFromImage/ExtractGrid';
 import { SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
 export type GridFromImageProgress = {
-    step: 'unknown'
+    step: string
 };
 
 export async function extractGridFromImage(
     image: HTMLImageElement | HTMLCanvasElement,
-    onProgress: (progress: GridFromImageProgress) => void
+    onProgress: (progress: GridFromImageProgress) => Promise<void>
 ): Promise<SudokuGameContents> {
-    const [extractedDigits, width, height, fontHeight] = extractGrid(image);
+    const [extractedDigits, width, height, fontHeight] = await extractGrid(image, onProgress);
+
     const testSet = extractedDigits.map(d => d[1].canvas);
-    const testResults = analyseDigits(width, height, fontHeight, testSet) as ValidNumber[];
+    const testResults = await analyseDigits(width, height, fontHeight, testSet, onProgress) as ValidNumber[];
 
     const sudokuContents = Array.from<ValidNumber | null>({ length: 81 }).fill(null);
 

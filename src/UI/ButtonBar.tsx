@@ -38,7 +38,6 @@ export default function ButtonBar() {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const ctx = resize.getContext('2d')!;
                 ctx.drawImage(img, 0, 0, resize.width, resize.height);
-                alert('Hang tight it could take a minute');
                 gridFromImage(resize).then(() => {
                     URL.revokeObjectURL(img.src);
                 });

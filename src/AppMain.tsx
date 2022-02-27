@@ -9,6 +9,7 @@ import { ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import 'src/SudokuApp.css';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
+import Messages, { createMessagesModel, MessagesContext } from 'src/UI/Messages';
 import NumberPicker, { NumberPickerContext } from 'src/UI/NumberPicker';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
@@ -27,26 +28,39 @@ function AppMain() {
     const app = createSudokuApp();
     const storage = createPersistence<StorageSchema>('SaveLoadUndo');
     const saveLoadUndo = createSaveLoadUndo(storage, app);
+    const { messages$, message$, dismiss$ } = createMessagesModel();
 
     useEffect(() => {
         saveLoadUndo.setup();
         loadSharedGame(app);
     }, []);
 
-    function activateNoSleep() {
+    function handleClick() {
         if (typeof process !== 'undefined' && process.env.JEST_WORKER_ID === undefined) {
             noSleep.enable();
         }
+
+        dismiss$.next();
     }
 
     function gridFromImage(image: HTMLCanvasElement) {
-        return extractGridFromImage(image, () => null).then((contents) => {
+        return extractGridFromImage(image, (progress) => {
+            messages$.next({
+                text: [progress.step]
+            });
+
+            return waitFrame();
+        }).then((contents) => {
             app.loadGame(contents, false);
+            dismiss$.next();
         });
     }
 
     return (
-        <div className="SudokuApp" onClick={activateNoSleep}>
+        <div className="SudokuApp" onClick={handleClick}>
+            <MessagesContext.Provider value={{ message$ }}>
+                <Messages></Messages>
+            </MessagesContext.Provider>
             <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
                 <SudokuGrid />
             </SudokuGridContext.Provider>
@@ -58,6 +72,12 @@ function AppMain() {
             </ButtonBarContext.Provider>
         </div>
     );
+}
+
+function waitFrame() {
+    return new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+    });
 }
 
 export default AppMain;

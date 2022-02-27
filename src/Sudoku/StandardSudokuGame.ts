@@ -1,5 +1,5 @@
 import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
-import { SudokuGameContents, SudokuGameUpdate, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { SudokuGameContents, SudokuGameUpdate, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 import SudokuCell from 'src/Sudoku/SudokuCell';

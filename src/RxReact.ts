@@ -1,5 +1,5 @@
 import { Context, createContext, useEffect, useMemo, useRef, useState } from 'react';
-import { firstValueFrom, Observable, ObservableInput, of, Subject, withLatestFrom } from 'rxjs';
+import { asyncScheduler, firstValueFrom, Observable, ObservableInput, observeOn, of, Subject, withLatestFrom } from 'rxjs';
 import { SpyInstanceFn } from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -38,6 +38,13 @@ export function peek<T>(target: Observable<T> | T): T {
         return target;
     }
 
+}
+
+export function prewarm<T>() {
+    return (source$: Observable<T>) => {
+        const sub = source$.pipe(observeOn(asyncScheduler)).subscribe(() => sub.unsubscribe());
+        return source$;
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
