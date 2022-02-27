@@ -45,6 +45,6 @@ export type SudokuCell = {
     toggleCandidate(candidate: ValidNumber): void;
 }
 
-export function createSudokuGame(defaultContents?: SudokuGameContents): SudokuGame {
-    return new StandardSudokuGame(defaultContents);
+export function createSudokuGame(defaultContents?: SudokuGameContents, startGame?: boolean): SudokuGame {
+    return new StandardSudokuGame(defaultContents, startGame);
 }

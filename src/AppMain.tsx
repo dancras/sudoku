@@ -41,7 +41,7 @@ function AppMain() {
 
     function gridFromImage(image: HTMLCanvasElement) {
         return extractGridFromImage(image, () => null).then((contents) => {
-            app.loadGame(contents);
+            app.loadGame(contents, false);
         });
     }
 

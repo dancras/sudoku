@@ -5,7 +5,7 @@ import { SudokuApp } from 'src/SudokuApp';
 export function loadSharedGame(app: SudokuApp) {
     if (window.location.hash) {
         const contents = decodeContents(window.location.hash.substring(1));
-        app.loadGame(contents);
+        app.loadGame(contents, true);
         history.replaceState(null, '', '.');
     }
 }

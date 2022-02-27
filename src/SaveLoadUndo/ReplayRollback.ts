@@ -39,7 +39,7 @@ export function replayUpdate(app: SudokuApp, game: SudokuGame, update: ManagedUp
 function replayAppUpdate(app: SudokuApp, update: SudokuAppUpdate) {
     switch (update.type) {
         case 'LoadGameUpdate':
-            app.loadGame(update.contents);
+            app.loadGame(update.contents, update.startGame);
             break;
         case 'NewGameUpdate':
             app.newGame();

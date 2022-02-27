@@ -25,6 +25,21 @@ test('it accepts default cell contents', () => {
     expect(grid.cells[40].isLocked).toEqual(false);
 });
 
+test('it does not lock default contents when lockDefaultContents is false', () => {
+    const defaultContents = [] as SudokuGameContents;
+    defaultContents[1] = null;
+    defaultContents[3] = 5;
+    // defaultContents[40] left blank to test sparse array
+    defaultContents[60] = 7;
+
+    const grid = new StandardSudokuGrid(defaultContents, false);
+
+    expect(grid.cells[3].isLocked).toEqual(false);
+    expect(grid.cells[60].isLocked).toEqual(false);
+    expect(grid.cells[1].isLocked).toEqual(false);
+    expect(grid.cells[40].isLocked).toEqual(false);
+});
+
 test('cells are added to the correct rows', () => {
     const grid = new StandardSudokuGrid();
 

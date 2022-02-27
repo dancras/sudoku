@@ -58,12 +58,17 @@ export default class DefaultApp {
         });
     }
 
-    loadGame(contents: SudokuGameContents) {
-        this.game$.next(createSudokuGame(contents));
-        this.status$.next(SudokuGameStatus.Solving);
+    loadGame(contents: SudokuGameContents, startGame = true) {
+        this.game$.next(createSudokuGame(contents, startGame));
+
+        if (startGame) {
+            this.status$.next(SudokuGameStatus.Solving);
+        }
+
         this.updates$.next({
             type: 'LoadGameUpdate',
-            contents
+            contents,
+            startGame
         });
     }
 }

@@ -136,7 +136,35 @@ describe('DefaultApp', () => {
 
         expect(updateSpy).toHaveBeenCalledWith({
             type: 'LoadGameUpdate',
-            contents
+            contents,
+            startGame: true
+        } as SudokuAppUpdate);
+    });
+
+    test('loadGame() leaves cells unlocked and the game in create mode when startGame param is false', () => {
+        const app = new DefaultApp();
+        const initialGame = peek(app.game$);
+        const contents: SudokuGameContents = Array.from({ length: 81 }).map(() => null);
+        contents[4] = 5;
+        contents[72] = 9;
+
+        const updateSpy = vi.fn();
+        app.updates$.subscribe(updateSpy);
+
+        app.loadGame(contents, false);
+
+        const loadedGame = peek(app.game$);
+
+        expect(loadedGame).not.toBe(initialGame);
+        expect(loadedGame.getContents()).toEqual(contents);
+        expect(peek(loadedGame.cells[4].isLocked)).toEqual(false);
+        expect(peek(loadedGame.cells[72].isLocked)).toEqual(false);
+        expect(peek(app.status$)).toEqual(SudokuGameStatus.Creating);
+
+        expect(updateSpy).toHaveBeenCalledWith({
+            type: 'LoadGameUpdate',
+            contents,
+            startGame: false
         } as SudokuAppUpdate);
     });
 });

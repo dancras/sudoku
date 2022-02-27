@@ -23,12 +23,13 @@ export default class StandardSudokuGame {
 
     gridCells: GridCell[];
 
-    constructor(defaultContents?: SudokuGameContents) {
+    constructor(
+        defaultContents = [] as SudokuGameContents,
+        lockDefaultContents = true
+    ) {
         this.gridCells = Array.from({ length: 81 }).map(() => new GridCell());
 
-        if (defaultContents) {
-            defaultContents.forEach((contents, i) => this.gridCells[i].contents$.next(contents));
-        }
+        defaultContents.forEach((contents, i) => this.gridCells[i].contents$.next(contents));
 
         const rows = VALID_NUMBERS.map(i =>new GridSlice(
             this.gridCells.slice(i * 9 - 9, i * 9)
@@ -47,7 +48,7 @@ export default class StandardSudokuGame {
                 rows[getRowIndex(i)],
                 columns[getColumnIndex(i)],
                 blocks[getBlockIndex(i)]
-            ], !!defaultContents?.[i]));
+            ], !!defaultContents[i] && lockDefaultContents));
 
         this.updates$ = merge(...this.gridCells.map(
             (cell, i) => merge(
@@ -88,7 +89,7 @@ export default class StandardSudokuGame {
             scan((acc, next) => acc + next, 0)
         );
 
-        const numberOfLockedCells = defaultContents ? defaultContents.filter(x => !!x).length : 0;
+        const numberOfLockedCells = lockDefaultContents ? defaultContents.filter(x => !!x).length : 0;
 
         this.isEmpty$ = totalCount$.pipe(
             map(count => count === numberOfLockedCells)

@@ -16,7 +16,8 @@ export type SudokuAppUpdate = {
     type: 'ResetGameUpdate'
 } | {
     type: 'LoadGameUpdate',
-    contents: SudokuGameContents
+    contents: SudokuGameContents,
+    startGame: boolean
 };
 
 export type SudokuApp = {
@@ -28,7 +29,7 @@ export type SudokuApp = {
     startGame(): void
     newGame(): void
     resetGame(): void
-    loadGame(contents: SudokuGameContents): void
+    loadGame(contents: SudokuGameContents, startGame: boolean): void
 }
 
 export function createSudokuApp() {
