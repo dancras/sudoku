@@ -1,6 +1,12 @@
 .Messages {
   position: absolute;
 }
+
+.Messages.-ShowingMessage {
+  width: 100%;
+  height: 100%;
+}
+
 .Messages .--Message {
   position: relative;
   top: 2em;

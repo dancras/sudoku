@@ -1,18 +1,22 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { peek } from 'src/RxReact';
 import { createTestProvider } from 'src/Test/TestContext';
 import Messages, { createMessagesModel, MessageData, MessagesContext } from 'src/UI/Messages';
 
 let TestProvider: FunctionComponent;
 let message$: BehaviorSubject<MessageData | undefined>;
+let dismiss$: Subject<void>;
 
 beforeEach(() => {
     message$ = new BehaviorSubject<MessageData | undefined>(undefined);
+    dismiss$ = new Subject<void>();
 
     [TestProvider] = createTestProvider(MessagesContext, {
-        message$
+        message$,
+        dismiss$,
     });
 
     render(
@@ -34,6 +38,25 @@ test('it shows the contents of message$', () => {
 
     expect(screen.getByText('Abc')).toBeInTheDocument();
     expect(screen.getByText('Def')).toBeInTheDocument();
+});
+
+test('-ShowingMessage class is present only when a message is showing', () => {
+    expect(screen.getByTestId('messages').className).not.toContain('-ShowingMessage');
+
+    message$.next({
+        text: ['Abc']
+    });
+
+    expect(screen.getByTestId('messages').className).toContain('-ShowingMessage');
+});
+
+test('dismiss is notified when messages container receives a click', () => {
+    const dismissSpy = vi.fn();
+    dismiss$.subscribe(dismissSpy);
+
+    userEvent.click(screen.getByTestId('messages'));
+
+    expect(dismissSpy).toHaveBeenCalled();
 });
 
 describe('createMessagesModel()', () => {

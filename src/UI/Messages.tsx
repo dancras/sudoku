@@ -9,15 +9,16 @@ export type MessageData = {
 }
 
 export const MessagesContext = defineDependencies<{
-    message$: Observable<MessageData | undefined>
+    message$: Observable<MessageData | undefined>,
+    dismiss$: Subject<void>
 }>();
 
 export default function Messages() {
-    const { message$ } = useContext(MessagesContext);
+    const { message$, dismiss$ } = useContext(MessagesContext);
     const message = useObservable(message$);
 
     return (
-        <div className="Messages">
+        <div className={`Messages ${ message ? '-ShowingMessage' : '' }`} onClick={() => dismiss$.next()} data-testid="messages">
             { message &&
                 <div className="--Message" data-testid="messages-message">
                     { message.text.map(text => <p key={text}>{ text }</p>) }

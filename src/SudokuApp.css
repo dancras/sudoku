@@ -7,7 +7,7 @@ body {
   --font-size-divisor: 9.5;
   font-family: monospace;
   font-size: min(calc(80vh / var(--font-size-divisor)), calc(100vw / var(--font-size-divisor)));
-  height: 100vh;
+  min-height: 100vh;
   max-width: 70vh;
   margin: 0 auto;
 }
@@ -27,7 +27,7 @@ body {
   --blue: rgb(145, 218, 230);
   touch-action: manipulation;
 
-  height: 100vh;
+  min-height: 100vh;
 
   display: flex;
   flex-direction: column;
@@ -41,6 +41,7 @@ body {
 
 .SudokuApp .Messages {
   font-size: 0.5em;
+  margin: 0;
 }
 
 .ButtonBar {

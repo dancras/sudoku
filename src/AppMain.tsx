@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { extractGridFromImage } from 'src/GridFromImage';
 import { createSaveLoadUndo, StorageSchema } from 'src/SaveLoadUndo';
-import { loadSharedGame, shareGame } from 'src/Share/FragmentShare';
-import { ValidNumber } from 'src/Sudoku';
+import { loadSharedGame, shareGame, ShareMethod } from 'src/Share/FragmentShare';
+import { SudokuGame, ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import 'src/SudokuApp.css';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
@@ -39,8 +39,6 @@ function AppMain() {
         if (typeof process === 'undefined' || process.env.JEST_WORKER_ID === undefined) {
             noSleep.enable();
         }
-
-        dismiss$.next();
     }
 
     function gridFromImage(image: HTMLCanvasElement) {
@@ -56,9 +54,17 @@ function AppMain() {
         });
     }
 
+    function shareGameWithFeedback(game: SudokuGame) {
+        if (shareGame(game) === ShareMethod.Clipboard) {
+            messages$.next({
+                text: ['Copied To Clipboard.']
+            });
+        }
+    }
+
     return (
         <div className="SudokuApp" onClick={handleClick}>
-            <MessagesContext.Provider value={{ message$ }}>
+            <MessagesContext.Provider value={{ message$, dismiss$ }}>
                 <Messages></Messages>
             </MessagesContext.Provider>
             <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
@@ -67,7 +73,7 @@ function AppMain() {
             <NumberPickerContext.Provider value={{ selectedNumber$ }}>
                 <NumberPicker />
             </NumberPickerContext.Provider>
-            <ButtonBarContext.Provider value={{ app, share: shareGame, saveLoadUndo, gridFromImage }}>
+            <ButtonBarContext.Provider value={{ app, share: shareGameWithFeedback, saveLoadUndo, gridFromImage }}>
                 <ButtonBar />
             </ButtonBarContext.Provider>
         </div>
