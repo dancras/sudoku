@@ -29,3 +29,25 @@ export function mergeUpdates(app: SudokuApp): ManagedUpdates {
         )
     );
 }
+
+export function pruneUpdates(updates: ManagedUpdate[]) {
+    const reversedUpdates = [...updates].reverse();
+
+    const newGameIndex = reversedUpdates.findIndex((update) =>
+        update.type === 'AppUpdate' && update.detail.type === 'NewGameUpdate'
+    );
+
+    if (newGameIndex !== -1) {
+        return reversedUpdates.slice(0, newGameIndex).reverse();
+    }
+
+    const loadGameIndex = reversedUpdates.findIndex((update) =>
+        update.type === 'AppUpdate' && update.detail.type === 'LoadGameUpdate'
+    );
+
+    if (loadGameIndex !== -1) {
+        return reversedUpdates.slice(0, loadGameIndex + 1).reverse();
+    }
+
+    return updates;
+}

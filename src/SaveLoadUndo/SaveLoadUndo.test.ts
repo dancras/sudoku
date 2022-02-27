@@ -1,7 +1,7 @@
 import createPersistence, { Persistence } from '@vitorluizc/persistence';
 import { createSaveLoadUndo, StorageSchema, StorageSchemaVersion } from 'src/SaveLoadUndo';
-import { ManagedUpdate, mergeUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
-import { createCellUpdate } from 'src/SaveLoadUndo/Mock';
+import { ManagedUpdate, mergeUpdates, pruneUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
+import { createCandidateUpdate, createCellUpdate, createLoadGameUpdate, createNewGameUpdate, createResetGameUpdate, createStartGameUpdate } from 'src/SaveLoadUndo/Mock';
 import { SudokuGameUpdate } from 'src/Sudoku';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
@@ -81,16 +81,62 @@ describe('mergeUpdates()', () => {
     });
 });
 
+describe('pruneUpdates()', () => {
+    it('does nothing if there are no LoadGameUpdate or NewGameUpdate', () => {
+        const updates = [
+            createCellUpdate(20, 5),
+            createStartGameUpdate(),
+            createCandidateUpdate(20, 2),
+            createResetGameUpdate()
+        ];
+
+        expect(pruneUpdates(updates)).toEqual(updates);
+    });
+
+    it('removes updates up to and including the most recent NewGameUpdate', () => {
+        const before = [
+            createCellUpdate(20, 5),
+            createNewGameUpdate(),
+        ];
+
+        const after = [
+            createCellUpdate(20, 5),
+            createStartGameUpdate(),
+        ];
+
+        expect(pruneUpdates(before.concat(after))).toEqual(after);
+    });
+
+    it('removes updates up to but not including the most recent LoadGameUpdate', () => {
+        const before = [
+            createCellUpdate(20, 5),
+        ];
+
+        const after = [
+            createLoadGameUpdate([], true),
+            createCellUpdate(20, 5),
+            createStartGameUpdate(),
+        ];
+
+        expect(pruneUpdates(before.concat(after))).toEqual(after);
+    });
+});
+
 describe('createSaveLoadUndo()', () => {
 
-    it('initialises using storage data', () => {
+    it('initialises using pruned storage data', () => {
         const app = createMockSudokuApp();
         const game = createMockSudokuGame();
         app.game$.next(game);
 
         mockStorage.set({
             version: StorageSchemaVersion.One,
-            data: [[], [createCellUpdate(50, 5)]]
+            data: [[
+                createCellUpdate(20, 5),
+                createNewGameUpdate(),
+            ], [
+                createCellUpdate(50, 5)
+            ]]
         });
 
         const saveLoadUndo = createSaveLoadUndo(mockStorage, app);
@@ -98,6 +144,7 @@ describe('createSaveLoadUndo()', () => {
 
         saveLoadUndo.redo();
 
+        expect(game.cells[20].toggleContents).not.toHaveBeenCalled();
         expect(game.cells[50].toggleContents).toHaveBeenCalledWith(5);
     });
 

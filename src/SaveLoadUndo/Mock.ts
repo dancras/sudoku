@@ -52,3 +52,12 @@ export function createStartGameUpdate(): ManagedUpdate {
         }
     };
 }
+
+export function createResetGameUpdate(): ManagedUpdate {
+    return {
+        type: 'AppUpdate',
+        detail: {
+            type: 'ResetGameUpdate'
+        }
+    };
+}

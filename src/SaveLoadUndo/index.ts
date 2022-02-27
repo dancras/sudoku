@@ -1,6 +1,6 @@
 import { Persistence } from '@vitorluizc/persistence';
 import { Subject, withLatestFrom } from 'rxjs';
-import { ManagedUpdate, mergeUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
+import { ManagedUpdate, mergeUpdates, pruneUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
 import { replayUpdate, replayUpdates, rollbackUpdate } from 'src/SaveLoadUndo/ReplayRollback';
 import UndoRedoCollector from 'src/SaveLoadUndo/UndoRedoCollector';
 import { SudokuApp } from 'src/SudokuApp';
@@ -24,7 +24,9 @@ export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: Sud
     const data = storage.get()?.data || [[], []];
     const collectorSource$ = new Subject<ManagedUpdate>();
 
-    const collector = new UndoRedoCollector(collectorSource$, data);
+    const prunedUpdates = pruneUpdates(data[0]);
+
+    const collector = new UndoRedoCollector(collectorSource$, [prunedUpdates, data[1]]);
 
     return {
         undo() {
@@ -34,14 +36,14 @@ export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: Sud
             collector.redo();
         },
         setup() {
-            replayUpdates(app, data[0]);
+            replayUpdates(app, prunedUpdates);
 
             mergeUpdates(app).subscribe(collectorSource$);
 
-            collector.collection$.subscribe(data => {
+            collector.collection$.subscribe(latestData => {
                 storage.set({
                     version: StorageSchemaVersion.One,
-                    data
+                    data: latestData
                 });
             });
 
