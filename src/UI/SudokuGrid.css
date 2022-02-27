@@ -1,19 +1,20 @@
 .SudokuGrid {
   --border-color: var(--purple);
+  --border-thickness: 3px;
   --background-color: var(--dark-grey);
   --contents-color: var(--green);
   --candidate-color: var(--yellow);
   --highlight-color: var(--blue);
   --error-color: var(--red);
-  --locked-background-color: var(--purple);
-  --locked-color: var(--dark-grey);
+  --locked-background-color: var(--dark-purple);
+  --locked-color: var(--dark-grey-intense);
   --highlight-locked-color: var(--blue);
   --zebra-vertical: var(--dark-grey-intense);
   user-select: none;
 
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  border: 3px solid var(--border-color);
+  border: var(--border-thickness) solid var(--border-color);
 }
 
 .SudokuGrid .--Cell {
@@ -95,7 +96,7 @@
 
 /* Borders */
 .SudokuGrid .--Cell:nth-child(3n) {
-  border-right: 2px solid var(--border-color);
+  border-right: var(--border-thickness) solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(9n) {
@@ -103,11 +104,11 @@
 }
 
 .SudokuGrid .--Cell:nth-child(n + 19):nth-child(-n + 27) {
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--border-thickness) solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(n + 46):nth-child(-n + 54) {
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: var(--border-thickness) solid var(--border-color);
 }
 
 .SudokuGrid .--Cell:nth-child(n + 73) {
