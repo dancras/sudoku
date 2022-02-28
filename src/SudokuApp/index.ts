@@ -32,6 +32,6 @@ export type SudokuApp = {
     loadGame(contents: SudokuGameContents, startGame: boolean): void
 }
 
-export function createSudokuApp() {
+export function createSudokuApp(): SudokuApp {
     return new DefaultApp();
 }

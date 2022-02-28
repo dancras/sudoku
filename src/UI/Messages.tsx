@@ -3,9 +3,20 @@ import { concat, concatAll, first, map, merge, NEVER, Observable, of, shareRepla
 import { defineDependencies, prewarm, useObservable } from 'src/RxReact';
 import 'src/UI/Messages.css';
 
+export type MessageArrow = {
+    target: 'ButtonBar',
+    button: number,
+    otherButton?: number
+} | {
+    target: 'NumberPicker'
+} | {
+    target: 'SudokuGrid'
+};
+
 export type MessageData = {
     text: string[],
-    mustDismiss?: boolean
+    mustDismiss?: boolean,
+    arrow?: MessageArrow
 }
 
 export const MessagesContext = defineDependencies<{
@@ -13,14 +24,31 @@ export const MessagesContext = defineDependencies<{
     dismiss$: Subject<void>
 }>();
 
+interface MessageStyle extends React.CSSProperties {
+    '--arrow-button'?: number;
+    '--arrow-other-button'?: number;
+}
+
 export default function Messages() {
     const { message$, dismiss$ } = useContext(MessagesContext);
     const message = useObservable(message$);
 
+    const arrowStyle = message && message.arrow && message.arrow.target === 'ButtonBar' ?
+        {
+            '--arrow-button': message.arrow.button,
+            '--arrow-other-button': message.arrow.otherButton,
+        } as MessageStyle :
+        undefined;
+
     return (
         <div className={`Messages ${ message ? '-ShowingMessage' : '' }`} onClick={() => dismiss$.next()} data-testid="messages">
             { message &&
-                <div className="--Message" data-testid="messages-message">
+                <div className={`--Message ${message.arrow ? '-Indicating' : ''}`}
+                     data-arrow-target={ message.arrow && message.arrow.target }
+                     style={ arrowStyle }
+                     data-arrow-other-button={ message?.arrow?.target === 'ButtonBar' ? message?.arrow?.otherButton : undefined }
+                     data-testid="messages-message"
+                >
                     { message.text.map(text => <p key={text}>{ text }</p>) }
                 </div>
             }

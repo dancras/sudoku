@@ -27,8 +27,6 @@ body {
   --blue: rgb(145, 218, 230);
   touch-action: manipulation;
 
-  min-height: 100vh;
-
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -40,7 +38,7 @@ body {
 }
 
 .SudokuApp .Messages {
-  font-size: 0.5em;
+  font-size: 0.40em;
   margin: 0;
 }
 

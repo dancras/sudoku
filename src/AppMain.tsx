@@ -3,6 +3,7 @@ import NoSleep from 'nosleep.js';
 import { useEffect } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { extractGridFromImage } from 'src/GridFromImage';
+import { OnboardingStorageSchema, setupOnboarding } from 'src/Onboarding';
 import { createSaveLoadUndo, StorageSchema } from 'src/SaveLoadUndo';
 import { loadSharedGame, shareGame, ShareMethod } from 'src/Share/FragmentShare';
 import { SudokuGame, ValidNumber } from 'src/Sudoku';
@@ -27,11 +28,13 @@ function AppMain() {
     const selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     const app = createSudokuApp();
     const storage = createPersistence<StorageSchema>('SaveLoadUndo');
+    const onboardingStorage = createPersistence<OnboardingStorageSchema>('Onboarding');
     const saveLoadUndo = createSaveLoadUndo(storage, app);
     const { messages$, message$, dismiss$ } = createMessagesModel();
 
     useEffect(() => {
         saveLoadUndo.setup();
+        setupOnboarding(onboardingStorage, messages$, app);
         loadSharedGame(app);
     }, []);
 
@@ -47,15 +50,15 @@ function AppMain() {
 
             return waitFrame();
         }).then((contents) => {
-            app.loadGame(contents, false);
             dismiss$.next();
+            app.loadGame(contents, false);
         });
     }
 
     function shareGameWithFeedback(game: SudokuGame) {
         if (shareGame(game) === ShareMethod.Clipboard) {
             messages$.next({
-                text: ['Copied To Clipboard.']
+                text: ['Copied Link To Clipboard.']
             });
         }
     }

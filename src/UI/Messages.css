@@ -8,13 +8,61 @@
 }
 
 .Messages .--Message {
-  position: relative;
+  position: absolute;
   top: 2em;
   margin: 0;
   padding: 0.3em;
   background-color: var(--beige);
   color: var(--dark-grey);
   border-radius: 0.2em;
+}
+
+.Messages .--Message.-Indicating::before {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  margin-left: -1em;
+  border-width: 1em;
+  border-style: solid;
+  border-color: var(--beige) transparent transparent transparent;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="NumberPicker"] {
+  top: auto;
+  bottom: 9.5em;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="NumberPicker"]::before {
+  left: 50%;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="SudokuGrid"] {
+  top: auto;
+  bottom: 14em;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="SudokuGrid"]::before {
+  left: 50%;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="ButtonBar"] {
+  top: auto;
+  bottom: 5em;
+}
+
+.Messages .--Message.-Indicating[data-arrow-target="ButtonBar"]::before {
+  left: calc(12.5% + (var(--arrow-button) * 25%));
+}
+
+.Messages .--Message.-Indicating[data-arrow-other-button]::after {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  left: calc(12.5% + (var(--arrow-other-button) * 25%));
+  margin-left: -1em;
+  border-width: 1em;
+  border-style: solid;
+  border-color: var(--beige) transparent transparent transparent;
 }
 
 .Messages p {
