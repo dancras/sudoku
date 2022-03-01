@@ -33,7 +33,10 @@ test('it shows nothing by default', () => {
 
 test('it shows the contents of message$', () => {
     message$.next({
-        text: ['Abc', 'Def']
+        body: <>
+            <p>Abc</p>
+            <p>Def</p>
+        </>
     });
 
     expect(screen.getByText('Abc')).toBeInTheDocument();
@@ -44,7 +47,7 @@ test('-ShowingMessage class is present only when a message is showing', () => {
     expect(screen.getByTestId('messages').className).not.toContain('-ShowingMessage');
 
     message$.next({
-        text: ['Abc']
+        body: <p>Abc</p>
     });
 
     expect(screen.getByTestId('messages').className).toContain('-ShowingMessage');
@@ -65,19 +68,19 @@ describe('createMessagesModel()', () => {
         const { message$, messages$ } = createMessagesModel();
 
         messages$.next({
-            text: ['foo']
+            body: <p>foo</p>
         });
 
         expect(peek(message$)).toEqual({
-            text: ['foo']
+            body: <p>foo</p>
         });
 
         messages$.next({
-            text: ['bar']
+            body: <p>bar</p>
         });
 
         expect(peek(message$)).toEqual({
-            text: ['bar']
+            body: <p>bar</p>
         });
     });
 
@@ -87,7 +90,7 @@ describe('createMessagesModel()', () => {
         expect(peek(message$)).toEqual(undefined);
 
         messages$.next({
-            text: ['foo']
+            body: <p>foo</p>
         });
 
         dismiss$.next();
@@ -99,40 +102,40 @@ describe('createMessagesModel()', () => {
         const { message$, messages$, dismiss$ } = createMessagesModel();
 
         messages$.next({
-            text: ['foo'],
+            body: <p>foo</p>,
             mustDismiss: true
         });
 
         // Will be skipped
         messages$.next({
-            text: ['bar'],
+            body: <p>bar</p>
         });
 
         messages$.next({
-            text: ['abc'],
+            body: <p>abc</p>,
             mustDismiss: true,
         });
 
         messages$.next({
-            text: ['def'],
+            body: <p>def</p>
         });
 
         expect(peek(message$)).toEqual({
-            text: ['foo'],
+            body: <p>foo</p>,
             mustDismiss: true
         });
 
         dismiss$.next();
 
         expect(peek(message$)).toEqual({
-            text: ['abc'],
+            body: <p>abc</p>,
             mustDismiss: true,
         });
 
         dismiss$.next();
 
         expect(peek(message$)).toEqual({
-            text: ['def']
+            body: <p>def</p>
         });
 
         dismiss$.next();

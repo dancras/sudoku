@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { ReactFragment, useContext } from 'react';
 import { concat, concatAll, first, map, merge, NEVER, Observable, of, shareReplay, startWith, Subject, takeUntil } from 'rxjs';
 import { defineDependencies, prewarm, useObservable } from 'src/RxReact';
 import 'src/UI/Messages.css';
@@ -14,7 +14,7 @@ export type MessageArrow = {
 };
 
 export type MessageData = {
-    text: string[],
+    body: ReactFragment,
     mustDismiss?: boolean,
     arrow?: MessageArrow
 }
@@ -49,7 +49,7 @@ export default function Messages() {
                      data-arrow-other-button={ message?.arrow?.target === 'ButtonBar' ? message?.arrow?.otherButton : undefined }
                      data-testid="messages-message"
                 >
-                    { message.text.map(text => <p key={text}>{ text }</p>) }
+                    { message.body }
                 </div>
             }
         </div>

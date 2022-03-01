@@ -45,7 +45,7 @@ function AppMain() {
     function gridFromImage(image: HTMLCanvasElement) {
         return extractGridFromImage(image, (progress) => {
             messages$.next({
-                text: [progress.step]
+                body: <p>{ progress.step }</p>
             });
 
             return waitFrame();
@@ -58,7 +58,7 @@ function AppMain() {
     function shareGameWithFeedback(game: SudokuGame) {
         if (shareGame(game) === ShareMethod.Clipboard) {
             messages$.next({
-                text: ['Copied Link To Clipboard.']
+                body: <p>Copied Link To Clipboard.</p>
             });
         }
     }
