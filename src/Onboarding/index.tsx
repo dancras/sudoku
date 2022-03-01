@@ -1,7 +1,8 @@
 import { Persistence } from '@vitorluizc/persistence';
 import { ReactFragment } from 'react';
-import { combineLatest, debounceTime, startWith, Subject, switchMap } from 'rxjs';
-import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
+import { debounceTime, map, merge, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+import { SudokuGameUpdate } from 'src/Sudoku';
+import { SudokuApp, SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 import { MessageArrow, MessageData } from 'src/UI/Messages';
 
 export type OnboardingStorageSchema = {
@@ -11,6 +12,16 @@ export type OnboardingStorageSchema = {
 function isTouchScreen() {
     return window.matchMedia('(hover: none)').matches;
 }
+
+type OnboardingUpdate = {
+    type: 'GameUpdate',
+    detail: SudokuGameUpdate
+} | {
+    type: 'AppUpdate',
+    detail: SudokuAppUpdate
+} | {
+    type: 'InitialUpdate'
+};
 
 export function setupOnboarding(
     storage: Persistence<OnboardingStorageSchema>,
@@ -36,12 +47,22 @@ export function setupOnboarding(
 
     const gameUpdates$ = app.game$.pipe(
         switchMap(game => game.updates$),
-        startWith(undefined)
+        map(update => ({
+            type: 'GameUpdate',
+            detail: update
+        } as OnboardingUpdate))
     );
 
-    const appUpdates$ = app.updates$.pipe(startWith(undefined));
+    const gameIsValid$ = app.game$.pipe(
+        switchMap(game => game.isValid$),
+    );
 
-    let solvingUpdates = 0;
+    const appUpdates$ = app.updates$.pipe(
+        map(update => ({
+            type: 'AppUpdate',
+            detail: update
+        } as OnboardingUpdate))
+    );
 
     const tapOrClick = <i>{ isTouchScreen() ? 'Tap' : 'Click' }</i>;
     const doubleTapOrClick = <i>{ isTouchScreen() ? 'Double Tap' : 'Double Click' }</i>;
@@ -59,12 +80,23 @@ export function setupOnboarding(
         <p>Instead you can use it to play puzzles from newspapers, sudoku books or other websites.</p>
     </>);
 
-    combineLatest([app.status$, appUpdates$, gameUpdates$]).pipe(
-        debounceTime(0)
-    ).subscribe(([status, appUpdate, gameUpdate]) => {
+    merge(
+        appUpdates$,
+        gameUpdates$,
+    ).pipe(
+        startWith({
+            type: 'InitialUpdate'
+        } as OnboardingUpdate),
+        debounceTime(0),
+        withLatestFrom(app.status$, gameIsValid$),
+    ).subscribe(([update, status, gameIsValid]) => {
+        let appUpdate: SudokuAppUpdate | undefined;
+        let gameUpdate: SudokuGameUpdate | undefined;
 
-        if (gameUpdate !== undefined && status === SudokuGameStatus.Solving) {
-            solvingUpdates++;
+        if (update.type === 'AppUpdate') {
+            appUpdate = update.detail;
+        } else if (update.type === 'GameUpdate') {
+            gameUpdate = update.detail;
         }
 
         if (status === SudokuGameStatus.Creating) {
@@ -108,24 +140,38 @@ export function setupOnboarding(
         }
 
         if (appUpdate && appUpdate.type === 'LoadGameUpdate' && appUpdate.startGame === false) {
+
             addMessage('photo_import_complete', <>
                 <p>Your { deviceOrComputer } has just trained a simple AI to understand the photo in real time.</p>
-                <p>First check that it&apos;s done a good job.</p>
             </>);
 
-            addMessage('photo_import_advice', <>
+            if (gameIsValid) {
+                addMessage('photo_import_promising', <>
+                    <p>It does looks promising but it&apos;s best to check it over.</p>
+                </>);
+
+                addMessage('photo_import_take_again', <>
+                    <p>If it&apos;s miles off you can try taking the photo again.</p>
+                </>);
+            } else {
+                addMessage('photo_import_take_again', <>
+                    <p>It seems you have some errors. Maybe try taking the photo again.</p>
+                </>);
+            }
+
+            addMessage('photo_import_errors_advice', <>
                 <p>For best results keep the grid straight and centered.</p>
                 <p>If it&apos;s from a screen, try zooming in and taking the photo from further away.</p>
             </>);
 
-            addMessage('photo_import_fix',
-                <p>You can always fix any missing or incorrect parts manually before starting.</p>
+            addMessage('photo_import_errors_fix',
+                <p>Sometimes it&apos;s quicker to correct a few numbers manually.</p>
             );
         }
 
         if (
-            appUpdate && appUpdate.type === 'LoadGameUpdate' && appUpdate.startGame === false ||
-            gameUpdate !== undefined && status === SudokuGameStatus.Creating
+            gameIsValid && appUpdate && appUpdate.type === 'LoadGameUpdate' && appUpdate.startGame === false ||
+            gameIsValid && gameUpdate !== undefined && status === SudokuGameStatus.Creating
         ) {
             addMessage('start_game_button',
                 <p>This is the <b>Start Game Button</b> for when you are done creating.</p>
@@ -189,16 +235,12 @@ export function setupOnboarding(
                 target: 'ButtonBar',
                 button: 1
             });
-        }
 
-        if (solvingUpdates === 10) {
             addMessage('save_progress', <>
                 <p>Your progress is being saved so you can continue later if you need to.</p>
                 <p>You can even play when you are offline.</p>
             </>);
-        }
 
-        if (solvingUpdates === 20) {
             addMessage('share_button', <>
                 <p>{ tapOrClick } the <b>Share Button</b> any time to share puzzles with friends.</p>
                 <p>Shared puzzles won&apos;t include any of your current progress.</p>
