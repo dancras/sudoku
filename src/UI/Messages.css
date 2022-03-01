@@ -8,6 +8,7 @@
 }
 
 .Messages .--Message {
+  width: 100%;
   position: absolute;
   top: 2em;
   margin: 0;
