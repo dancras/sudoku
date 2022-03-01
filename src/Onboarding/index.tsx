@@ -18,12 +18,14 @@ export function setupOnboarding(
 
     function addMessage(key: string, body: ReactFragment, arrow?: MessageArrow) {
         if (!seen[key]) {
-            seen[key] = true;
-            storage.set({ seen });
             messages$.next({
                 body,
                 mustDismiss: true,
-                arrow
+                arrow,
+                onRender: () => {
+                    seen[key] = true;
+                    storage.set({ seen });
+                }
             });
         }
     }
@@ -40,7 +42,7 @@ export function setupOnboarding(
     addMessage('welcome', <>
         <p>Welcome to my Sudoku app.</p>
         <p>I&apos;ll be sharing a few details the first time you encounter things.</p>
-        <p>Tap or Click anywhere to dismiss a message.</p>
+        <p><i>Tap or Click</i> anywhere to dismiss a message.</p>
     </>);
 
     addMessage('about', <>

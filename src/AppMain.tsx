@@ -44,11 +44,12 @@ function AppMain() {
 
     function gridFromImage(image: HTMLCanvasElement) {
         return extractGridFromImage(image, (progress) => {
-            messages$.next({
-                body: <p>{ progress.step }</p>
+            return new Promise<void>((resolve) => {
+                messages$.next({
+                    body: <p>{ progress.step }</p>,
+                    onRender: resolve
+                });
             });
-
-            return waitFrame();
         }).then((contents) => {
             dismiss$.next();
             app.loadGame(contents, false);
@@ -79,12 +80,6 @@ function AppMain() {
             </ButtonBarContext.Provider>
         </div>
     );
-}
-
-function waitFrame() {
-    return new Promise<void>((resolve) => {
-        window.requestAnimationFrame(() => resolve());
-    });
 }
 
 export default AppMain;

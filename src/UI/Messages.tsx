@@ -1,4 +1,4 @@
-import { ReactFragment, useContext } from 'react';
+import { ReactFragment, useContext, useEffect } from 'react';
 import { concat, concatAll, first, map, merge, NEVER, Observable, of, shareReplay, startWith, Subject, takeUntil } from 'rxjs';
 import { defineDependencies, prewarm, useObservable } from 'src/RxReact';
 import 'src/UI/Messages.css';
@@ -16,7 +16,8 @@ export type MessageArrow = {
 export type MessageData = {
     body: ReactFragment,
     mustDismiss?: boolean,
-    arrow?: MessageArrow
+    arrow?: MessageArrow,
+    onRender?: () => void
 }
 
 export const MessagesContext = defineDependencies<{
@@ -32,6 +33,12 @@ interface MessageStyle extends React.CSSProperties {
 export default function Messages() {
     const { message$, dismiss$ } = useContext(MessagesContext);
     const message = useObservable(message$);
+
+    useEffect(() => {
+        if (message && message.onRender) {
+            message.onRender();
+        }
+    }, [message]);
 
     const arrowStyle = message && message.arrow && message.arrow.target === 'ButtonBar' ?
         {

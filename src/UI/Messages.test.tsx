@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -60,6 +60,19 @@ test('dismiss is notified when messages container receives a click', () => {
     userEvent.click(screen.getByTestId('messages'));
 
     expect(dismissSpy).toHaveBeenCalled();
+});
+
+test('optional onRender is called', () => {
+    const onBeforeRenderSpy = vi.fn();
+
+    act(() => {
+        message$.next({
+            body: <p>foo</p>,
+            onRender: onBeforeRenderSpy
+        });
+    });
+
+    expect(onBeforeRenderSpy).toHaveBeenCalled();
 });
 
 describe('createMessagesModel()', () => {
