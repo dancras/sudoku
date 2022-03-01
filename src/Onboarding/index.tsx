@@ -46,6 +46,7 @@ export function setupOnboarding(
     const tapOrClick = <i>{ isTouchScreen() ? 'Tap' : 'Click' }</i>;
     const doubleTapOrClick = <i>{ isTouchScreen() ? 'Double Tap' : 'Double Click' }</i>;
     const tappingOrClicking = <i>{ isTouchScreen() ? 'Tapping' : 'Clicking' }</i>;
+    const deviceOrComputer = isTouchScreen() ? 'phone or tablet' : 'computer';
 
     addMessage('welcome', <>
         <p>Welcome to my Sudoku app.</p>
@@ -108,7 +109,7 @@ export function setupOnboarding(
 
         if (appUpdate && appUpdate.type === 'LoadGameUpdate' && appUpdate.startGame === false) {
             addMessage('photo_import_complete', <>
-                <p>Your Phone or Computer has just trained a simple AI to understand the photo in real time.</p>
+                <p>Your { deviceOrComputer } has just trained a simple AI to understand the photo in real time.</p>
                 <p>First check that it&apos;s done a good job.</p>
             </>);
 
