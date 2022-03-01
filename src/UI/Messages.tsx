@@ -61,11 +61,11 @@ export function createMessagesModel() {
     const dismiss$ = new Subject<void>();
 
     const message$ = messages$.pipe(
-        map(data => takeAUntilBThenC(
-            data,
-            data.mustDismiss ? dismiss$ : merge(dismiss$, hot(messages$)),
-            undefined
-        )),
+        map(data => takeAUntilBThenC({
+            a: data,
+            b$: data.mustDismiss ? dismiss$ : merge(dismiss$, hot(messages$)),
+            c: undefined
+        })),
         concatAll(),
         startWith(undefined),
         shareReplay(1),
@@ -88,6 +88,8 @@ function hot<T>(source$: Observable<T>) {
     );
 }
 
-function takeAUntilBThenC<T>(a: T, b: Observable<unknown>, c: T) {
-    return concat(NEVER.pipe(startWith(a), takeUntil(b)), of(c));
+function takeAUntilBThenC<T>(
+    { a, b$, c } : { a: T, b$: Observable<unknown>, c: T }
+) {
+    return concat(NEVER.pipe(startWith(a), takeUntil(b$)), of(c));
 }
