@@ -242,6 +242,21 @@ test('getContents() returns the current grid contents', () => {
     expect(grid.getContents()).toEqual(expected);
 });
 
+test('getContents() only returns locked contents when onlyLocked is true', () => {
+    const defaultContents = [] as SudokuGameContents;
+    defaultContents[3] = 5;
+
+    const grid = new StandardSudokuGrid(defaultContents);
+
+    grid.cells[0].toggleContents(5);
+    grid.cells[49].toggleContents(8);
+
+    const expected: Array<number | null> = Array.from({ length: 81 }).map(() => null);
+    expected[3] = 5;
+
+    expect(grid.getContents(true)).toEqual(expected);
+});
+
 test('updates$ emits cell updates with correct info', () => {
 
     const grid = new StandardSudokuGrid();

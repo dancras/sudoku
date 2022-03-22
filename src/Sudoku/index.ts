@@ -30,7 +30,7 @@ export type SudokuGame = {
 
     isSolved$: Observable<boolean>;
 
-    getContents(): SudokuGameContents;
+    getContents(onlyLocked?: boolean): SudokuGameContents;
 
     updates$: Observable<SudokuGameUpdate>;
 }

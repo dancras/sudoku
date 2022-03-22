@@ -17,8 +17,12 @@ export default class StandardSudokuGame {
 
     updates$: Observable<SudokuGameUpdate>;
 
-    getContents(): SudokuGameContents {
-        return this.gridCells.map(cell => cell.contents$.value);
+    getContents(onlyLocked = false): SudokuGameContents {
+        return this.gridCells
+            .map((cell, i) => {
+                const isLocked = this.cells[i].isLocked;
+                return !onlyLocked || isLocked ? cell.contents$.value : null;
+            });
     }
 
     gridCells: GridCell[];

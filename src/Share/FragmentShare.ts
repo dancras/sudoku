@@ -17,7 +17,7 @@ export function loadSharedGame(app: SudokuApp) {
 
 export function shareGame(game: SudokuGame): ShareMethod {
     const url = new URL(window.location.href);
-    url.hash = encodeContents(game.getContents());
+    url.hash = encodeContents(game.getContents(true));
 
     if (typeof navigator.share === 'function') {
         navigator.share({
