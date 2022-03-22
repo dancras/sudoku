@@ -1,10 +1,18 @@
 .NumberPicker {
-  color: var(--yellow);
   user-select: none;
 
   font-size: 1.2em;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
+}
+.NumberPicker[data-current-color="a"] {
+  color: var(--candidate-color-a);
+}
+.NumberPicker[data-current-color="b"] {
+  color: var(--candidate-color-b);
+}
+.NumberPicker[data-current-color="c"] {
+  color: var(--candidate-color-c);
 }
 .NumberPicker .--Values {
   grid-row: 1;

@@ -4,6 +4,9 @@ import StandardSudokuGame from 'src/Sudoku/StandardSudokuGame';
 export const VALID_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export type ValidNumber = typeof VALID_NUMBERS[number]
 
+export type CandidateColor = 'a' | 'b' | 'c';
+export const AVAILABLE_COLORS = ['a', 'b', 'c'] as CandidateColor[];
+
 export type MapValidsNumberTo<T> = {
     [K in ValidNumber]: T
 }
