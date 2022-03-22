@@ -53,9 +53,10 @@ describe('DefaultApp', () => {
 
     test('newGame() replaces the game with an empty one and sets status to Creating', () => {
         const app = new DefaultApp();
+        app.startGame();
+
         const initialGame = peek(app.game$);
 
-        app.status$.next(SudokuGameStatus.Solving);
         initialGame.cells[0].toggleContents(1);
         initialGame.cells[3].toggleContents(2);
 
@@ -166,5 +167,14 @@ describe('DefaultApp', () => {
             contents,
             startGame: false
         } as SudokuAppUpdate);
+    });
+
+    test('status$ is Solved when game$ is solved', () => {
+        const app = new DefaultApp();
+        const game = createMockSudokuGame();
+        app.game$.next(game);
+        game.isSolved$.next(true);
+
+        expect(peek(app.status$)).toEqual(SudokuGameStatus.Solved);
     });
 });

@@ -1,12 +1,13 @@
-import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { createSudokuGame, SudokuGame, SudokuGameContents } from 'src/Sudoku';
 import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 
 export default class DefaultApp {
 
-    status$: BehaviorSubject<SudokuGameStatus>;
-
     game$: BehaviorSubject<SudokuGame>;
+
+    #status$: BehaviorSubject<SudokuGameStatus>;
+    status$: Observable<SudokuGameStatus>;
 
     canStart$: Observable<boolean>;
 
@@ -15,8 +16,17 @@ export default class DefaultApp {
     updates$: Subject<SudokuAppUpdate>;
 
     constructor() {
-        this.status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating);
         this.game$ = new BehaviorSubject<SudokuGame>(createSudokuGame());
+
+        const gameIsSolved$ = this.game$.pipe(
+            switchMap(game => game.isSolved$)
+        );
+
+        this.#status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating);
+        this.status$ = this.#status$.pipe(
+            withLatestFrom(gameIsSolved$),
+            map(([status, isSolved]) => isSolved ? SudokuGameStatus.Solved : status)
+        );
 
         this.canStart$ = this.game$.pipe(
             switchMap(game => combineLatest([game.isEmpty$, game.isValid$])),
@@ -34,7 +44,7 @@ export default class DefaultApp {
     startGame() {
         const contents = this.game$.value.getContents();
         this.game$.next(createSudokuGame(contents));
-        this.status$.next(SudokuGameStatus.Solving);
+        this.#status$.next(SudokuGameStatus.Solving);
         this.updates$.next({
             type: 'StartGameUpdate'
         });
@@ -42,7 +52,7 @@ export default class DefaultApp {
 
     newGame() {
         this.game$.next(createSudokuGame());
-        this.status$.next(SudokuGameStatus.Creating);
+        this.#status$.next(SudokuGameStatus.Creating);
         this.updates$.next({
             type: 'NewGameUpdate'
         });
@@ -62,7 +72,7 @@ export default class DefaultApp {
         this.game$.next(createSudokuGame(contents, startGame));
 
         if (startGame) {
-            this.status$.next(SudokuGameStatus.Solving);
+            this.#status$.next(SudokuGameStatus.Solving);
         }
 
         this.updates$.next({
