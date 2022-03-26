@@ -49,6 +49,16 @@
   height: calc(100% / 3);
   flex-basis: calc(100% / 3);
   color: var(--candidate-color);
+  border-radius: 0.15em;
+}
+.SudokuGrid .--Candidate[data-candidate-color="a"] {
+  background-color: var(--candidate-background-color-a);
+}
+.SudokuGrid .--Candidate[data-candidate-color="b"] {
+  background-color: var(--candidate-background-color-b);
+}
+.SudokuGrid .--Candidate[data-candidate-color="c"] {
+  background-color: var(--candidate-background-color-c);
 }
 
 .SudokuGrid .-Highlight .--Contents {

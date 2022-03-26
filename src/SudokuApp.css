@@ -27,10 +27,12 @@ body {
   --red: rgb(237, 108, 137);
   --blue: rgb(145, 218, 230);
   --pink: rgb(200,75,174);
+  --brown: rgb(136, 110, 67);
+  --teal: rgb(46, 97, 113);
   --candidate-text-color: var(--yellow);
   --candidate-background-color-a: var(--transparent);
-  --candidate-background-color-b: var(--pink);
-  --candidate-background-color-c: rgb(103, 109, 192);
+  --candidate-background-color-b: var(--brown);
+  --candidate-background-color-c: var(--teal);
   touch-action: manipulation;
 
   display: flex;
