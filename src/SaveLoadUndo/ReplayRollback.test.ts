@@ -62,9 +62,9 @@ describe('replayUpdate()', () => {
     });
 
     it('calls toggleCandidate as specified in a CellUpdate', () => {
-        replayUpdate(app, game, createCandidateUpdate(22, 7));
+        replayUpdate(app, game, createCandidateUpdate(22, 7, 'a'));
 
-        expect(game.cells[22].toggleCandidate).toHaveBeenCalledWith(7);
+        expect(game.cells[22].toggleCandidate).toHaveBeenCalledWith(7, 'a');
     });
 
     it('calls loadGame on app as per LoadGameUpdate', () => {
@@ -153,9 +153,9 @@ describe('rollbackUpdate', () => {
     });
 
     it('toggles rolled back candidate for CandidateUpdate', () => {
-        rollbackUpdate(app, game, [], createCandidateUpdate(50, 8));
+        rollbackUpdate(app, game, [], createCandidateUpdate(50, 8, 'a'));
 
-        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(8);
+        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(8, 'a');
     });
 
     it('rolls back any AppUpdate by replaying from NewGameUpdate if most recent', () => {

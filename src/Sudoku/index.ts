@@ -19,7 +19,7 @@ export type SudokuGameUpdate = {
     type: 'CandidateUpdate',
     cellIndex: number,
     candidate: ValidNumber,
-    isShowing: boolean
+    color: CandidateColor | null
 };
 
 export type SudokuGameContents = Array<ValidNumber | null>;
@@ -39,13 +39,14 @@ export type SudokuGame = {
 }
 
 export type Answer = [ValidNumber, boolean];
+export type CandidateStatus = [CandidateColor, boolean];
 
 export type SudokuCell = {
     contents$: Observable<Answer | null>;
-    candidates: MapValidsNumberTo<Observable<boolean | null>>;
+    candidates: MapValidsNumberTo<Observable<CandidateStatus | null>>;
     isLocked: boolean;
     toggleContents(contents: ValidNumber | null): void;
-    toggleCandidate(candidate: ValidNumber): void;
+    toggleCandidate(candidate: ValidNumber, color: CandidateColor | null): void;
 }
 
 export function createSudokuGame(defaultContents?: SudokuGameContents, startGame?: boolean): SudokuGame {

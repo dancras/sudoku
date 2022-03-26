@@ -299,31 +299,31 @@ test('updates$ emits candidate updates with correct info', () => {
 
     grid.updates$.subscribe(updateSpy);
 
-    grid.cells[0].toggleCandidate(7);
+    grid.cells[0].toggleCandidate(7, 'a');
 
     expect(updateSpy).toHaveBeenCalledWith({
         type: 'CandidateUpdate',
         cellIndex: 0,
         candidate: 7,
-        isShowing: true
+        color: 'a'
     } as SudokuGameUpdate);
 
-    grid.cells[23].toggleCandidate(2);
+    grid.cells[23].toggleCandidate(2, 'b');
 
     expect(updateSpy).toHaveBeenCalledWith({
         type: 'CandidateUpdate',
         cellIndex: 23,
         candidate: 2,
-        isShowing: true
+        color: 'b'
     } as SudokuGameUpdate);
 
-    grid.cells[0].toggleCandidate(7);
+    grid.cells[0].toggleCandidate(7, 'a');
 
     expect(updateSpy).toHaveBeenCalledWith({
         type: 'CandidateUpdate',
         cellIndex: 0,
         candidate: 7,
-        isShowing: false
+        color: null
     } as SudokuGameUpdate);
 
 });

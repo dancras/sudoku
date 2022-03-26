@@ -67,11 +67,11 @@ export default class StandardSudokuGame {
                 ...VALID_NUMBERS.map(n =>
                     cell.candidates[n].pipe(
                         skip(1),
-                        map(isShowing => ({
+                        map(color => ({
                             type: 'CandidateUpdate',
                             cellIndex: i,
                             candidate: n,
-                            isShowing
+                            color
                         } as SudokuGameUpdate))
                     )
                 )

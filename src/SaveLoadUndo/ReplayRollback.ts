@@ -61,7 +61,7 @@ function replayGridUpdate(game: SudokuGame, update: SudokuGameUpdate) {
             game.cells[update.cellIndex].toggleContents(update.contents);
             break;
         case 'CandidateUpdate':
-            game.cells[update.cellIndex].toggleCandidate(update.candidate);
+            game.cells[update.cellIndex].toggleCandidate(update.candidate, update.color);
             break;
         default:
             console.error('Unhandled replayGridUpdate', ((x: never) => x)(update));
@@ -107,7 +107,7 @@ function rollbackGridUpdate(game: SudokuGame, updates: ManagedUpdate[], update: 
             rollbackCellUpdate(game, updates, update.cellIndex);
             break;
         case 'CandidateUpdate':
-            game.cells[update.cellIndex].toggleCandidate(update.candidate);
+            game.cells[update.cellIndex].toggleCandidate(update.candidate, update.color);
             break;
         default:
             console.error('Unhandled replayGridUpdate', ((x: never) => x)(update));

@@ -1,5 +1,5 @@
 import { combineLatest, map, Observable, of, switchMap } from 'rxjs';
-import { Answer, MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { Answer, CandidateColor, CandidateStatus, MapValidsNumberTo, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
 
@@ -7,7 +7,7 @@ export default class SudokuCell {
     private gridCell: GridCell;
 
     contents$: Observable<Answer | null>;
-    candidates: MapValidsNumberTo<Observable<boolean | null>>;
+    candidates: MapValidsNumberTo<Observable<CandidateStatus | null>>;
     isLocked: boolean;
 
     slices: GridSlice[];
@@ -30,11 +30,14 @@ export default class SudokuCell {
 
         this.candidates = VALID_NUMBERS.reduce((acc, next) => Object.assign(acc, {
             [next]: gridCell.candidates[next].pipe(
-                switchMap(isShowing => isShowing ?
-                    occurrencesOfAnswer(slices, next).pipe(
-                        map(occurrences => Math.max(...occurrences) === 0)
-                    ) :
-                    of(null)
+                switchMap(color => color === null ?
+                    of(null) :
+                    combineLatest([
+                        of(color),
+                        occurrencesOfAnswer(slices, next).pipe(
+                            map(occurrences => Math.max(...occurrences) === 0)
+                        )
+                    ])
                 )
             )
         }), {} as typeof this.candidates);
@@ -46,8 +49,10 @@ export default class SudokuCell {
         this.gridCell.contents$.next(this.gridCell.contents$.value === contents ? null : contents);
     }
 
-    toggleCandidate(candidate: ValidNumber) {
-        this.gridCell.candidates[candidate].next(!this.gridCell.candidates[candidate].value);
+    toggleCandidate(candidate: ValidNumber, color: CandidateColor | null) {
+        this.gridCell.candidates[candidate].next(
+            this.gridCell.candidates[candidate].value === color ? null : color
+        );
     }
 }
 

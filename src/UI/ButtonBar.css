@@ -1,9 +1,11 @@
 .ButtonBar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
 }
 
 .ButtonBar button {
+  flex-basis: 21%;
   background-color: var(--orange);
   color: var(--dark-grey);
   border: 0;

@@ -1,12 +1,13 @@
 import { useContext, useMemo } from 'react';
 import { combineLatest, map, Observable } from 'rxjs';
 import { defineDependencies, useEventCallback, useObservable } from 'src/RxReact';
-import { MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
+import { CandidateColor, CandidateStatus, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import 'src/UI/SudokuGrid.css';
 
 export const SudokuGridContext = defineDependencies<{
-    selectedNumber$: Observable<ValidNumber>
+    selectedNumber$: Observable<ValidNumber>,
+    currentColor$: Observable<CandidateColor>,
     app: SudokuApp
 }>();
 
@@ -21,7 +22,7 @@ type Highlights = {
 }
 
 export default function SudokuGrid() {
-    const { selectedNumber$, app } = useContext(SudokuGridContext);
+    const { selectedNumber$, currentColor$,  app } = useContext(SudokuGridContext);
     const game = useObservable(app.game$);
 
     const highlights: Highlights[] = useMemo(() => game.cells.map(cell => ({
@@ -38,18 +39,24 @@ export default function SudokuGrid() {
     return (
         <div className="SudokuGrid" data-testid="sudoku-grid">
             {game.cells.map((cell, i) =>
-                <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} app={app} highlights={highlights[i]} />
+                <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} currentColor$={currentColor$} app={app} highlights={highlights[i]} />
             )}
         </div>
     );
 }
 
-function Cell({ cell, selectedNumber$, app, highlights }: { cell: SudokuCell, selectedNumber$: Observable<ValidNumber>, app: SudokuApp, highlights: Highlights }) {
+function Cell({ cell, selectedNumber$, currentColor$, app, highlights }: {
+    cell: SudokuCell,
+    selectedNumber$: Observable<ValidNumber>,
+    currentColor$: Observable<CandidateColor>,
+    app: SudokuApp,
+    highlights: Highlights
+}) {
 
     const [contents, isValid] = useObservable(cell.contents$) || [null, true];
     const isHighlighted = useObservable(highlights.highlightCell$);
 
-    const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber: ValidNumber, status) => {
+    const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber: ValidNumber, currentColor: CandidateColor, status) => {
         if (cell.isLocked) {
             return;
         } else if (
@@ -58,9 +65,9 @@ function Cell({ cell, selectedNumber$, app, highlights }: { cell: SudokuCell, se
         ) {
             cell.toggleContents(selectedNumber);
         } else if (status === SudokuGameStatus.Solving && cellEvent === CellEvents.Click) {
-            cell.toggleCandidate(selectedNumber);
+            cell.toggleCandidate(selectedNumber, currentColor);
         }
-    }, [selectedNumber$, app.status$], [cell, cell.isLocked]);
+    }, [selectedNumber$, currentColor$, app.status$], [cell, cell.isLocked]);
 
     return (
         <div className={`--Cell ${cell.isLocked ? '-Locked' : ''} ${isHighlighted ? '-Highlight' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}
@@ -79,10 +86,12 @@ function Cell({ cell, selectedNumber$, app, highlights }: { cell: SudokuCell, se
     );
 }
 
-function CellCandidate({ candidate, status$, isHighlighted$ }: { candidate: number, status$: Observable<boolean | null>, isHighlighted$: Observable<boolean> }) {
+function CellCandidate({ candidate, status$, isHighlighted$ }: { candidate: number, status$: Observable<CandidateStatus | null>, isHighlighted$: Observable<boolean> }) {
     const status = useObservable(status$);
     const isHighlighted = useObservable(isHighlighted$);
     return (
-        <div className={`--Candidate ${isHighlighted ? '-Highlight' : ''} ${ status !== null ? (status ? '-Valid' : '-Invalid') : '' }`}>{ status !== null ? candidate : ' ' }</div>
+        <div className={`--Candidate ${isHighlighted ? '-Highlight' : ''} ${ status !== null ? (status[1] ? '-Valid' : '-Invalid') : '' }`}
+             data-candidate-color={status?.[0]}
+        >{ status !== null ? candidate : ' ' }</div>
     );
 }

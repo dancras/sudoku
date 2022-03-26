@@ -86,26 +86,32 @@ describe('SudokuCell', () => {
         expect(peek(sudokuCell.contents$)).toEqual(null);
     });
 
-    test('candidate is null for a value when the underlying grid cell is false', () => {
+    test('candidate is null for a value when the underlying grid cell does not have it', () => {
         expect(peek(sudokuCell.candidates[1])).toEqual(null);
     });
 
     test('candidate is valid when underlying cell has it showing and no slice contains it', () => {
-        sudokuCell.toggleCandidate(1);
+        sudokuCell.toggleCandidate(1, 'a');
 
-        expect(peek(sudokuCell.candidates[1])).toEqual(true);
+        expect(peek(sudokuCell.candidates[1])).toEqual(['a', true]);
 
         gridCells[1].contents$.next(1);
 
-        expect(peek(sudokuCell.candidates[1])).toEqual(false);
+        expect(peek(sudokuCell.candidates[1])).toEqual(['a', false]);
     });
 
     test('toggleCandidates nulls underlying value when it is currently showing', () => {
-        sudokuCell.toggleCandidate(1);
-        expect(peek(sudokuCell.candidates[1])).toEqual(true);
+        sudokuCell.toggleCandidate(1, 'a');
+        expect(peek(sudokuCell.candidates[1])).toEqual(['a', true]);
 
-        sudokuCell.toggleCandidate(1);
+        sudokuCell.toggleCandidate(1, 'a');
         expect(peek(sudokuCell.candidates[1])).toEqual(null);
+    });
+
+    test('toggleCandidates replaces candidate color when it is different', () => {
+        sudokuCell.toggleCandidate(1, 'a');
+        sudokuCell.toggleCandidate(1, 'b');
+        expect(peek(sudokuCell.candidates[1])).toEqual(['b', true]);
     });
 
     test('isLocked is passed to constructor', () => {

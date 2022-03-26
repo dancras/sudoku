@@ -1,5 +1,5 @@
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
-import { SudokuGameContents, ValidNumber } from 'src/Sudoku';
+import { CandidateColor, SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
 export function createCellUpdate(cellIndex: number, contents: ValidNumber | null): ManagedUpdate {
     return {
@@ -12,14 +12,14 @@ export function createCellUpdate(cellIndex: number, contents: ValidNumber | null
     };
 }
 
-export function createCandidateUpdate(cellIndex: number, candidate: ValidNumber, isShowing = true): ManagedUpdate {
+export function createCandidateUpdate(cellIndex: number, candidate: ValidNumber, color: CandidateColor | null): ManagedUpdate {
     return {
         type: 'GridUpdate',
         detail: {
             type: 'CandidateUpdate',
             cellIndex,
             candidate,
-            isShowing
+            color
         }
     };
 }

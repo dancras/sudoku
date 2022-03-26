@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { peek, Writeable } from 'src/RxReact';
-import { SudokuCell, ValidNumber } from 'src/Sudoku';
+import { CandidateColor, SudokuCell, ValidNumber } from 'src/Sudoku';
 import { SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { ContextValue, createTestProvider } from 'src/Test/TestContext';
@@ -12,6 +12,7 @@ import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 let TestProvider: FunctionComponent;
 
 let selectedNumber$: Subject<ValidNumber>;
+let currentColor$: Subject<CandidateColor>;
 let sudokuGrid: Writeable<SudokuCell>[];
 let status$: Subject<SudokuGameStatus>;
 let contextValue: Writeable<ContextValue<typeof SudokuGridContext>>;
@@ -38,6 +39,7 @@ beforeEach(() => {
     // } as Writeable<SudokuCell>));
 
     selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
+    currentColor$ = new BehaviorSubject<CandidateColor>('a');
     status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Solving);
 
     const app = Object.assign(createMockSudokuApp(), {
@@ -48,6 +50,7 @@ beforeEach(() => {
 
     [TestProvider] = createTestProvider(SudokuGridContext, contextValue = {
         selectedNumber$,
+        currentColor$,
         app
     });
 
@@ -99,8 +102,8 @@ test('dispatches toggleContents on double click', () => {
 test('cell candidates display when set', () => {
 
     act(() => {
-        sudokuGrid[0].candidates[1].next(true);
-        sudokuGrid[0].candidates[9].next(true);
+        sudokuGrid[0].candidates[1].next(['a', true]);
+        sudokuGrid[0].candidates[9].next(['a', true]);
     });
 
     expect(screen.getByText(1)).toBeInTheDocument();
@@ -154,7 +157,7 @@ test('cell has -Valid or -Invalid class depending on state', () => {
 test('candidate has -Valid or -Invalid class depending on state', () => {
 
     act(() => {
-        sudokuGrid[0].candidates[1].next(true);
+        sudokuGrid[0].candidates[1].next(['a', true]);
     });
 
     const candidateElement = screen.getByText(1);
@@ -163,7 +166,7 @@ test('candidate has -Valid or -Invalid class depending on state', () => {
     expect(candidateElement?.className).not.toContain('-Invalid');
 
     act(() => {
-        sudokuGrid[0].candidates[1].next(false);
+        sudokuGrid[0].candidates[1].next(['a', false]);
     });
 
     expect(candidateElement?.className).toContain('-Invalid');
@@ -181,10 +184,11 @@ test('dispatches toggleCandidate on single click', () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     selectedNumber$.next(7);
+    currentColor$.next('b');
 
     firstCell && userEvent.click(firstCell);
 
-    expect(sudokuGrid[0].toggleCandidate).toHaveBeenCalledWith(7);
+    expect(sudokuGrid[0].toggleCandidate).toHaveBeenCalledWith(7, 'b');
 });
 
 test('cell single click dispatches toggleContents when SudokuGameStatus.Creating', () => {
@@ -239,7 +243,7 @@ test('cell has -Highlight class if its contents matches selected number', () => 
 
 test('candidate has -Highlight class if it is active and matches selected number', () => {
     act(() => {
-        sudokuGrid[0].candidates[1].next(true);
+        sudokuGrid[0].candidates[1].next(['a', true]);
     });
 
     const candidateElement = screen.getByText(1);
@@ -258,4 +262,20 @@ test('candidate has -Highlight class if it is active and matches selected number
     });
 
     expect(candidateElement?.className).not.toContain('-Highlight');
+});
+
+test('candidate has data-candidate-color attribute', () => {
+    act(() => {
+        sudokuGrid[0].candidates[1].next(['a', true]);
+    });
+
+    const candidateElement = screen.getByText(1);
+
+    expect(candidateElement?.getAttribute('data-candidate-color')).toContain('a');
+
+    act(() => {
+        sudokuGrid[0].candidates[1].next(['b', true]);
+    });
+
+    expect(candidateElement?.getAttribute('data-candidate-color')).toContain('b');
 });
