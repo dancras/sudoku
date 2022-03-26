@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, map, Observable, Subject, switchMap, withLatestFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, shareReplay, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { createSudokuGame, SudokuGame, SudokuGameContents } from 'src/Sudoku';
 import { SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
 
@@ -25,7 +25,8 @@ export default class DefaultApp {
         this.#status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Creating);
         this.status$ = this.#status$.pipe(
             withLatestFrom(gameIsSolved$),
-            map(([status, isSolved]) => isSolved ? SudokuGameStatus.Solved : status)
+            map(([status, isSolved]) => isSolved ? SudokuGameStatus.Solved : status),
+            shareReplay(1)
         );
 
         this.canStart$ = this.game$.pipe(

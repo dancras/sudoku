@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Writeable } from 'src/RxReact';
 import { Answer, CandidateStatus, MapValidsNumberTo, SudokuCell, SudokuGame, SudokuGameUpdate, VALID_NUMBERS } from 'src/Sudoku';
 
