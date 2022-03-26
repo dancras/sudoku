@@ -7,7 +7,8 @@
     "test": "vitest",
     "build": "node patchNoSleep.js && node patchJestDom.js && tsc && vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "compile": "tsc"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",

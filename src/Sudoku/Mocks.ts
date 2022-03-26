@@ -1,6 +1,6 @@
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Writeable } from 'src/RxReact';
-import { Answer, MapValidsNumberTo, SudokuCell, SudokuGame, SudokuGameUpdate, VALID_NUMBERS } from 'src/Sudoku';
+import { Answer, CandidateStatus, MapValidsNumberTo, SudokuCell, SudokuGame, SudokuGameUpdate, VALID_NUMBERS } from 'src/Sudoku';
 
 export function createMockSudokuGame(): Writeable<SudokuGame> {
     return {
@@ -22,8 +22,8 @@ export function createMockSudokuCell(): Writeable<SudokuCell> {
     return {
         contents$: new BehaviorSubject<Answer | null>(null),
         candidates: VALID_NUMBERS.reduce((acc, n) => Object.assign(acc, {
-            [n]: new BehaviorSubject<boolean | null>(null)
-        }), {} as MapValidsNumberTo<BehaviorSubject<boolean | null>>),
+            [n]: new BehaviorSubject<CandidateStatus | null>(null)
+        }), {} as MapValidsNumberTo<BehaviorSubject<CandidateStatus | null>>),
         isLocked: false,
         toggleContents: vi.fn(),
         toggleCandidate: vi.fn(),

@@ -23,7 +23,7 @@ export default function CompositionRoot({ context, children }: React.PropsWithCh
 
     return (
         <MessagesContext.Provider value={{ message$, dismiss$ }}>
-            <SudokuGridContext.Provider value={{ selectedNumber$, app }}>
+            <SudokuGridContext.Provider value={{ selectedNumber$, currentColor$, app }}>
                 <NumberPickerContext.Provider value={{ selectedNumber$, currentColor$ }}>
                     <ButtonBarContext.Provider value={{ app, share, saveLoadUndo, gridFromImage }}>
                         { children }
