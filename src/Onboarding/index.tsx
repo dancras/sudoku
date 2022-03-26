@@ -213,16 +213,22 @@ export function setupOnboarding(
                 }
             );
 
+            addMessage('solving_toggle_cell_solution', <>
+                <p>{ doubleTapOrClick } to add or remove the chosen number as a Solution.</p>
+            </>, {
+                target: 'SudokuGrid'
+            });
+
             addMessage('solving_toggle_cell_candidate', <>
                 <p>{ tapOrClick } a cell to add or remove the chosen number as a Candidate.</p>
             </>, {
                 target: 'SudokuGrid'
             });
 
-            addMessage('solving_toggle_cell_solution', <>
-                <p>{ doubleTapOrClick } to add or remove the chosen number as a Solution.</p>
+            addMessage('solving_candidate_colouring', <>
+                <p>Advanced Feature: Tap the selected number to cycle through candidate colours.</p>
             </>, {
-                target: 'SudokuGrid'
+                target: 'NumberPicker'
             });
         }
 
