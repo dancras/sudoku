@@ -10,6 +10,8 @@ export enum StorageSchemaVersion {
     Two
 }
 
+const CURRENT_STORAGE_SCHEMA_VERSION = StorageSchemaVersion.Two;
+
 export type StorageSchema = {
     version: StorageSchemaVersion,
     data: [ManagedUpdate[], ManagedUpdate[]]
@@ -23,7 +25,7 @@ export type SaveLoadUndo = {
 
 export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: SudokuApp): SaveLoadUndo {
     const state = storage.get();
-    const data = state?.version === StorageSchemaVersion.Two ? state?.data : [[], []];
+    const data = state?.version === CURRENT_STORAGE_SCHEMA_VERSION ? state?.data : [[], []];
     const collectorSource$ = new Subject<ManagedUpdate>();
 
     const prunedUpdates = pruneUpdates(data[0]);
@@ -44,7 +46,7 @@ export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: Sud
 
             collector.collection$.subscribe(latestData => {
                 storage.set({
-                    version: StorageSchemaVersion.One,
+                    version: CURRENT_STORAGE_SCHEMA_VERSION,
                     data: latestData
                 });
             });
