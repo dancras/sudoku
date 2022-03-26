@@ -4,15 +4,17 @@
   font-size: 1.2em;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
+  color: var(--candidate-text-color);
+  border-radius: 0.1em;
 }
 .NumberPicker[data-current-color="a"] {
-  color: var(--candidate-color-a);
+  background-color: var(--candidate-background-color-a);
 }
 .NumberPicker[data-current-color="b"] {
-  color: var(--candidate-color-b);
+  background-color: var(--candidate-background-color-b);
 }
 .NumberPicker[data-current-color="c"] {
-  color: var(--candidate-color-c);
+  background-color: var(--candidate-background-color-c);
 }
 .NumberPicker .--Values {
   grid-row: 1;
@@ -37,5 +39,5 @@
   transition: margin 700ms;
   height: 100%;
   background-color: var(--grey);
-  border-radius: 5px;
+  border-radius: 0.1em;
 }

@@ -13,6 +13,7 @@ body {
 }
 
 .SudokuApp {
+  --transparent: rgba(0, 0, 0, 0);
   --beige: rgb(252, 249, 244);
   --orange: rgb(238, 157, 112);
   --purple: rgb(168, 157, 234);
@@ -26,9 +27,10 @@ body {
   --red: rgb(237, 108, 137);
   --blue: rgb(145, 218, 230);
   --pink: rgb(200,75,174);
-  --candidate-color-a: var(--yellow);
-  --candidate-color-b: var(--pink);
-  --candidate-color-c: rgb(103, 109, 192);
+  --candidate-text-color: var(--yellow);
+  --candidate-background-color-a: var(--transparent);
+  --candidate-background-color-b: var(--pink);
+  --candidate-background-color-c: rgb(103, 109, 192);
   touch-action: manipulation;
 
   display: flex;
