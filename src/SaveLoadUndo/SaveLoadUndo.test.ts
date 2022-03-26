@@ -86,7 +86,7 @@ describe('pruneUpdates()', () => {
         const updates = [
             createCellUpdate(20, 5),
             createStartGameUpdate(),
-            createCandidateUpdate(20, 2),
+            createCandidateUpdate(20, 2, 'a'),
             createResetGameUpdate()
         ];
 
@@ -130,7 +130,7 @@ describe('createSaveLoadUndo()', () => {
         app.game$.next(game);
 
         mockStorage.set({
-            version: StorageSchemaVersion.One,
+            version: StorageSchemaVersion.Two,
             data: [[
                 createCellUpdate(20, 5),
                 createNewGameUpdate(),

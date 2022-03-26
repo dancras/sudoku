@@ -14,12 +14,12 @@ export type MapValidsNumberTo<T> = {
 export type SudokuGameUpdate = {
     type: 'CellUpdate',
     cellIndex: number,
-    contents: ValidNumber | null
+    contents: ValidNumber
 } | {
     type: 'CandidateUpdate',
     cellIndex: number,
     candidate: ValidNumber,
-    color: CandidateColor | null
+    color: CandidateColor
 };
 
 export type SudokuGameContents = Array<ValidNumber | null>;
@@ -45,8 +45,8 @@ export type SudokuCell = {
     contents$: Observable<Answer | null>;
     candidates: MapValidsNumberTo<Observable<CandidateStatus | null>>;
     isLocked: boolean;
-    toggleContents(contents: ValidNumber | null): void;
-    toggleCandidate(candidate: ValidNumber, color: CandidateColor | null): void;
+    toggleContents(contents: ValidNumber): void;
+    toggleCandidate(candidate: ValidNumber, color: CandidateColor): void;
 }
 
 export function createSudokuGame(defaultContents?: SudokuGameContents, startGame?: boolean): SudokuGame {

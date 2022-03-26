@@ -12,9 +12,20 @@ export default class SudokuCell {
 
     slices: GridSlice[];
 
-    constructor(gridCell: GridCell, slices: GridSlice[], isLocked: boolean) {
+    notifyCellUpdate: (contents: ValidNumber) => void;
+    notifyCandidateUpdate: (candidate: ValidNumber, color: CandidateColor) => void;
+
+    constructor(
+        gridCell: GridCell,
+        slices: GridSlice[],
+        isLocked: boolean,
+        notifyCellUpdate: (contents: ValidNumber) => void,
+        notifyCandidateUpdate: (candidate: ValidNumber, color: CandidateColor) => void
+    ) {
         this.gridCell = gridCell;
         this.slices = slices;
+        this.notifyCellUpdate = notifyCellUpdate;
+        this.notifyCandidateUpdate = notifyCandidateUpdate;
 
         this.contents$ = gridCell.contents$.pipe(
             switchMap(contents => contents === null ?
@@ -45,14 +56,16 @@ export default class SudokuCell {
         this.isLocked = isLocked;
     }
 
-    toggleContents(contents: ValidNumber | null) {
+    toggleContents(contents: ValidNumber) {
         this.gridCell.contents$.next(this.gridCell.contents$.value === contents ? null : contents);
+        this.notifyCellUpdate(contents);
     }
 
-    toggleCandidate(candidate: ValidNumber, color: CandidateColor | null) {
+    toggleCandidate(candidate: ValidNumber, color: CandidateColor) {
         this.gridCell.candidates[candidate].next(
             this.gridCell.candidates[candidate].value === color ? null : color
         );
+        this.notifyCandidateUpdate(candidate, color);
     }
 }
 

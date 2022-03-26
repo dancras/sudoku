@@ -1,4 +1,4 @@
-import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, take } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, merge, mergeMap, Observable, of, pairwise, scan, skip, startWith, Subject, take } from 'rxjs';
 import { SudokuGameContents, SudokuGameUpdate, VALID_NUMBERS } from 'src/Sudoku';
 import GridCell from 'src/Sudoku/GridCell';
 import GridSlice from 'src/Sudoku/GridSlice';
@@ -15,7 +15,7 @@ export default class StandardSudokuGame {
 
     isSolved$: Observable<boolean>;
 
-    updates$: Observable<SudokuGameUpdate>;
+    updates$: Subject<SudokuGameUpdate>;
 
     getContents(onlyLocked = false): SudokuGameContents {
         return this.gridCells
@@ -47,36 +47,33 @@ export default class StandardSudokuGame {
             getBlockMembers(i).map(j => this.gridCells[j])
         ));
 
-        this.cells = Array.from({ length: 81 })
-            .map((x, i) => new SudokuCell(this.gridCells[i], [
-                rows[getRowIndex(i)],
-                columns[getColumnIndex(i)],
-                blocks[getBlockIndex(i)]
-            ], !!defaultContents[i] && lockDefaultContents));
+        this.updates$ = new Subject<SudokuGameUpdate>();
 
-        this.updates$ = merge(...this.gridCells.map(
-            (cell, i) => merge(
-                cell.contents$.pipe(
-                    skip(1),
-                    map(contents => ({
+        this.cells = Array.from({ length: 81 })
+            .map((x, i) => new SudokuCell(
+                this.gridCells[i],
+                [
+                    rows[getRowIndex(i)],
+                    columns[getColumnIndex(i)],
+                    blocks[getBlockIndex(i)]
+                ],
+                !!defaultContents[i] && lockDefaultContents,
+                (contents) => {
+                    this.updates$.next({
                         type: 'CellUpdate',
                         cellIndex: i,
                         contents
-                    } as SudokuGameUpdate))
-                ),
-                ...VALID_NUMBERS.map(n =>
-                    cell.candidates[n].pipe(
-                        skip(1),
-                        map(color => ({
-                            type: 'CandidateUpdate',
-                            cellIndex: i,
-                            candidate: n,
-                            color
-                        } as SudokuGameUpdate))
-                    )
-                )
-            )
-        ));
+                    });
+                },
+                (candidate, color) => {
+                    this.updates$.next({
+                        type: 'CandidateUpdate',
+                        cellIndex: i,
+                        candidate,
+                        color
+                    });
+                }
+            ));
 
         const totalCountChanges = this.gridCells.map(cell =>
             cell.contents$.pipe(

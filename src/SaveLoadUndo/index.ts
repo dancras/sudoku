@@ -6,7 +6,8 @@ import UndoRedoCollector from 'src/SaveLoadUndo/UndoRedoCollector';
 import { SudokuApp } from 'src/SudokuApp';
 
 export enum StorageSchemaVersion {
-    One
+    One,
+    Two
 }
 
 export type StorageSchema = {
@@ -21,7 +22,8 @@ export type SaveLoadUndo = {
 }
 
 export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: SudokuApp): SaveLoadUndo {
-    const data = storage.get()?.data || [[], []];
+    const state = storage.get();
+    const data = state?.version === StorageSchemaVersion.Two ? state?.data : [[], []];
     const collectorSource$ = new Subject<ManagedUpdate>();
 
     const prunedUpdates = pruneUpdates(data[0]);
