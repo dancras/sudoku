@@ -2,7 +2,7 @@ import { Writeable } from 'src/RxReact';
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
 import { createCandidateUpdate, createCellUpdate, createLoadGameUpdate, createNewGameUpdate, createStartGameUpdate } from 'src/SaveLoadUndo/Mock';
 import { replayUpdate, replayUpdates, rollbackUpdate } from 'src/SaveLoadUndo/ReplayRollback';
-import { SudokuGame } from 'src/Sudoku';
+import { SudokuGame, ValidNumber } from 'src/Sudoku';
 import { createMockSudokuGame } from 'src/Sudoku/Mocks';
 import { SudokuApp } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
@@ -108,10 +108,48 @@ describe('replayUpdate()', () => {
 
 describe('rollbackUpdate', () => {
 
-    it('toggles rolled back contents for CellUpdate', () => {
-        rollbackUpdate(app, game, [], createCellUpdate(50, 4));
+    it('rolls back CellUpdate using most recent CellUpdate for the same cellIndex', () => {
+        const updates: ManagedUpdate[] = [
+            createCellUpdate(50, 4),
+            createCellUpdate(30, 6)
+        ];
+
+        rollbackUpdate(app, game, updates, createCellUpdate(50, 2));
 
         expect(game.cells[50].toggleContents).toHaveBeenCalledWith(4);
+    });
+
+    it('rolls back CellUpdate to null if there is no previous update', () => {
+        const updates: ManagedUpdate[] = [
+            createCellUpdate(30, 6)
+        ];
+
+        rollbackUpdate(app, game, updates, createCellUpdate(50, 2));
+
+        expect(game.cells[50].toggleContents).toHaveBeenCalledWith(null);
+    });
+
+    it('rolls back CellUpdate to loaded contents if there recent LoadGameUpdate', () => {
+        const contents = Array.from({ 50: 6, length: 81 }).map(x => x ? x as ValidNumber : null);
+        const updates: ManagedUpdate[] = [
+            createCellUpdate(50, 4),
+            createLoadGameUpdate(contents, true)
+        ];
+
+        rollbackUpdate(app, game, updates, createCellUpdate(50, 2));
+
+        expect(game.cells[50].toggleContents).toHaveBeenCalledWith(6);
+    });
+
+    it('rolls back CellUpdate to null if other AppUpdate is most recent', () => {
+        const updates: ManagedUpdate[] = [
+            createCellUpdate(50, 4),
+            createStartGameUpdate()
+        ];
+
+        rollbackUpdate(app, game, updates, createCellUpdate(50, 2));
+
+        expect(game.cells[50].toggleContents).toHaveBeenCalledWith(null);
     });
 
     it('toggles rolled back candidate for CandidateUpdate', () => {

@@ -1,6 +1,6 @@
 import { of, withLatestFrom } from 'rxjs';
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
-import { SudokuGame, SudokuGameUpdate } from 'src/Sudoku';
+import { SudokuGame, SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
 import { SudokuApp, SudokuAppUpdate } from 'src/SudokuApp';
 
 
@@ -104,7 +104,7 @@ function rollbackAppUpdate(app: SudokuApp, updates: ManagedUpdate[]) {
 function rollbackGridUpdate(game: SudokuGame, updates: ManagedUpdate[], update: SudokuGameUpdate) {
     switch (update.type) {
         case 'CellUpdate':
-            game.cells[update.cellIndex].toggleContents(update.contents);
+            rollbackCellUpdate(game, updates, update.cellIndex);
             break;
         case 'CandidateUpdate':
             game.cells[update.cellIndex].toggleCandidate(update.candidate, update.color);
@@ -112,4 +112,26 @@ function rollbackGridUpdate(game: SudokuGame, updates: ManagedUpdate[], update: 
         default:
             console.error('Unhandled replayGridUpdate', ((x: never) => x)(update));
     }
+}
+
+function rollbackCellUpdate(game: SudokuGame, updates: ManagedUpdate[], cellIndex: number) {
+    const reversedUpdates = [...updates].reverse();
+    const i = reversedUpdates.findIndex(update => update.type === 'AppUpdate' || isCellUpdateForIndex(update, cellIndex));
+    const update = reversedUpdates[i] as ManagedUpdate | undefined;
+
+    let rollbackContents: ValidNumber | null = null;
+
+    if (update && update.type === 'GridUpdate' && update.detail.type === 'CellUpdate') {
+        rollbackContents = update.detail.contents;
+    } else if (update && update.type === 'AppUpdate' && update.detail.type === 'LoadGameUpdate') {
+        rollbackContents = update.detail.contents[cellIndex];
+    }
+
+    game.cells[cellIndex].toggleContents(rollbackContents);
+}
+
+function isCellUpdateForIndex(update: ManagedUpdate, cellIndex: number) {
+    return update.type === 'GridUpdate' &&
+        update.detail.type === 'CellUpdate' &&
+        update.detail.cellIndex === cellIndex;
 }

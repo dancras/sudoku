@@ -25,7 +25,7 @@ export type SaveLoadUndo = {
 
 export function createSaveLoadUndo(storage: Persistence<StorageSchema>, app: SudokuApp): SaveLoadUndo {
     const state = storage.get();
-    const data = state?.version === CURRENT_STORAGE_SCHEMA_VERSION ? state?.data : [[], []];
+    const data = state && state.version === CURRENT_STORAGE_SCHEMA_VERSION ? state.data : [[], []];
     const collectorSource$ = new Subject<ManagedUpdate>();
 
     const prunedUpdates = pruneUpdates(data[0]);

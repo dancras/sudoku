@@ -166,7 +166,7 @@ test('isValid$ is false when row, column or block has more than 1 of a number', 
     expect(peek(grid.isValid$)).toEqual(false);
 
     // 1 * * * * * * * *
-    grid.cells[3].toggleContents(1);
+    grid.cells[3].toggleContents(null);
     expect(peek(grid.isValid$)).toEqual(true);
 
     // 1 * * * * * * * *
@@ -182,7 +182,7 @@ test('isValid$ is false when row, column or block has more than 1 of a number', 
 
     // 1 * * * * * * * *
     // 2 * *
-    grid.cells[1].toggleContents(2);
+    grid.cells[1].toggleContents(null);
     expect(peek(grid.isValid$)).toEqual(true);
 });
 
@@ -217,7 +217,7 @@ test('isSolved$ is true when all cells are filled and the grid is valid', () => 
     grid.cells[0].toggleContents(4);
     expect(peek(grid.isSolved$)).toEqual(true);
 
-    grid.cells[2].toggleContents(3);
+    grid.cells[2].toggleContents(null);
     expect(peek(grid.isSolved$)).toEqual(false);
 
     grid.cells[2].toggleContents(3);
@@ -282,6 +282,14 @@ test('updates$ emits cell updates with correct info', () => {
         contents: 2
     } as SudokuGameUpdate);
 
+    grid.cells[50].toggleContents(2);
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CellUpdate',
+        cellIndex: 50,
+        contents: null
+    } as SudokuGameUpdate);
+
 });
 
 test('updates$ emits candidate updates with correct info', () => {
@@ -307,6 +315,15 @@ test('updates$ emits candidate updates with correct info', () => {
         cellIndex: 23,
         candidate: 2,
         color: 'b'
+    } as SudokuGameUpdate);
+
+    grid.cells[0].toggleCandidate(7, 'a');
+
+    expect(updateSpy).toHaveBeenCalledWith({
+        type: 'CandidateUpdate',
+        cellIndex: 0,
+        candidate: 7,
+        color: null
     } as SudokuGameUpdate);
 
 });

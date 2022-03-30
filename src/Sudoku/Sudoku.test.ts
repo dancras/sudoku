@@ -33,13 +33,13 @@ describe('SudokuCell', () => {
         gridCells = Array.from({ length: 9 }).map(() => new GridCell());
         gridCell = gridCells[0];
         gridSlice = new GridSlice(gridCells);
-        sudokuCell = new SudokuCell(gridCell, [gridSlice], false, vi.fn(), vi.fn());
+        sudokuCell = new SudokuCell(gridCell, [gridSlice], false);
     });
 
     test('contents$ is the value from underlying grid cell and whether it is valid', () => {
         gridCell.contents$.next(9);
 
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], false, vi.fn(), vi.fn());
+        const sudokuCell = new SudokuCell(gridCell, [gridSlice], false);
 
         expect(peek(sudokuCell.contents$)).toEqual([9, true]);
     });
@@ -56,7 +56,7 @@ describe('SudokuCell', () => {
     });
 
     test('contents$ is marked as invalid even if another GridSlice is valid ', () => {
-        const cell = new SudokuCell(gridCell, [new GridSlice([gridCell]), gridSlice], false, vi.fn(), vi.fn());
+        const cell = new SudokuCell(gridCell, [new GridSlice([gridCell]), gridSlice], false);
 
         gridCells[1].contents$.next(5);
         cell.toggleContents(5);
@@ -73,6 +73,9 @@ describe('SudokuCell', () => {
 
         sudokuCell.toggleContents(5);
         expect(peek(sudokuCell.contents$)).toEqual([5, true]);
+
+        sudokuCell.toggleContents(null);
+        expect(peek(sudokuCell.contents$)).toEqual(null);
     });
 
     test('toggleContents nulls underlying grid contents when equal to current', () => {
@@ -112,7 +115,7 @@ describe('SudokuCell', () => {
     });
 
     test('isLocked is passed to constructor', () => {
-        const sudokuCell = new SudokuCell(gridCell, [gridSlice], true, vi.fn(), vi.fn());
+        const sudokuCell = new SudokuCell(gridCell, [gridSlice], true);
         expect(sudokuCell.isLocked).toEqual(true);
     });
 });

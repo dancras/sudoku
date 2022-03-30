@@ -1,7 +1,7 @@
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
 import { CandidateColor, SudokuGameContents, ValidNumber } from 'src/Sudoku';
 
-export function createCellUpdate(cellIndex: number, contents: ValidNumber): ManagedUpdate {
+export function createCellUpdate(cellIndex: number, contents: ValidNumber | null): ManagedUpdate {
     return {
         type: 'GridUpdate',
         detail: {
@@ -12,7 +12,7 @@ export function createCellUpdate(cellIndex: number, contents: ValidNumber): Mana
     };
 }
 
-export function createCandidateUpdate(cellIndex: number, candidate: ValidNumber, color: CandidateColor): ManagedUpdate {
+export function createCandidateUpdate(cellIndex: number, candidate: ValidNumber, color: CandidateColor | null): ManagedUpdate {
     return {
         type: 'GridUpdate',
         detail: {
