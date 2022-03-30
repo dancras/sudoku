@@ -130,7 +130,7 @@ describe('createSaveLoadUndo()', () => {
         app.game$.next(game);
 
         mockStorage.set({
-            version: StorageSchemaVersion.Two,
+            version: StorageSchemaVersion.One,
             data: [[
                 createCellUpdate(20, 5),
                 createNewGameUpdate(),

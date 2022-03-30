@@ -6,11 +6,10 @@ import UndoRedoCollector from 'src/SaveLoadUndo/UndoRedoCollector';
 import { SudokuApp } from 'src/SudokuApp';
 
 export enum StorageSchemaVersion {
-    One,
-    Two
+    One
 }
 
-const CURRENT_STORAGE_SCHEMA_VERSION = StorageSchemaVersion.Two;
+const CURRENT_STORAGE_SCHEMA_VERSION = StorageSchemaVersion.One;
 
 export type StorageSchema = {
     version: StorageSchemaVersion,
