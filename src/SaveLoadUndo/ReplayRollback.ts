@@ -1,6 +1,6 @@
 import { of, withLatestFrom } from 'rxjs';
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
-import { SudokuGame, SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
+import { CandidateColor, SudokuGame, SudokuGameUpdate, ValidNumber } from 'src/Sudoku';
 import { SudokuApp, SudokuAppUpdate } from 'src/SudokuApp';
 
 
@@ -107,7 +107,7 @@ function rollbackGridUpdate(game: SudokuGame, updates: ManagedUpdate[], update: 
             rollbackCellUpdate(game, updates, update.cellIndex);
             break;
         case 'CandidateUpdate':
-            game.cells[update.cellIndex].toggleCandidate(update.candidate, update.color);
+            rollbackCandidateUpdate(game, updates, update.cellIndex, update.candidate);
             break;
         default:
             console.error('Unhandled replayGridUpdate', ((x: never) => x)(update));
@@ -134,4 +134,25 @@ function isCellUpdateForIndex(update: ManagedUpdate, cellIndex: number) {
     return update.type === 'GridUpdate' &&
         update.detail.type === 'CellUpdate' &&
         update.detail.cellIndex === cellIndex;
+}
+
+function rollbackCandidateUpdate(game: SudokuGame, updates: ManagedUpdate[], cellIndex: number, candidate: ValidNumber) {
+    const reversedUpdates = [...updates].reverse();
+    const i = reversedUpdates.findIndex(update => update.type === 'AppUpdate' || isCandidateUpdateForIndex(update, cellIndex, candidate));
+    const update = reversedUpdates[i] as ManagedUpdate | undefined;
+
+    let rollbackColor: CandidateColor | null = null;
+
+    if (update && update.type === 'GridUpdate' && update.detail.type === 'CandidateUpdate') {
+        rollbackColor = update.detail.color;
+    }
+
+    game.cells[cellIndex].toggleCandidate(candidate, rollbackColor);
+}
+
+function isCandidateUpdateForIndex(update: ManagedUpdate, cellIndex: number, candidate: ValidNumber) {
+    return update.type === 'GridUpdate' &&
+        update.detail.type === 'CandidateUpdate' &&
+        update.detail.cellIndex === cellIndex &&
+        update.detail.candidate === candidate;
 }

@@ -152,10 +152,38 @@ describe('rollbackUpdate', () => {
         expect(game.cells[50].toggleContents).toHaveBeenCalledWith(null);
     });
 
-    it('toggles rolled back candidate for CandidateUpdate', () => {
-        rollbackUpdate(app, game, [], createCandidateUpdate(50, 8, 'a'));
+    it('rolls back CandidateUpdate using most recent CandidateUpdate for the same cellIndex', () => {
+        const updates: ManagedUpdate[] = [
+            createCandidateUpdate(50, 4, 'a'),
+            createCandidateUpdate(50, 8, 'a'),
+            createCandidateUpdate(30, 6, 'a')
+        ];
 
-        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(8, 'a');
+        rollbackUpdate(app, game, updates, createCandidateUpdate(50, 4, 'b'));
+
+        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(4, 'a');
+    });
+
+    it('rolls back CandidateUpdate to null if there is no previous update', () => {
+        const updates: ManagedUpdate[] = [
+            createCandidateUpdate(30, 6, 'a'),
+            createCandidateUpdate(50, 4, 'a')
+        ];
+
+        rollbackUpdate(app, game, updates, createCandidateUpdate(50, 2, 'a'));
+
+        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(2, null);
+    });
+
+    it('ignores CandidateUpdate before a more recent AppUpdate', () => {
+        const updates: ManagedUpdate[] = [
+            createCandidateUpdate(50, 2, 'a'),
+            createStartGameUpdate()
+        ];
+
+        rollbackUpdate(app, game, updates, createCandidateUpdate(50, 2, 'b'));
+
+        expect(game.cells[50].toggleCandidate).toHaveBeenCalledWith(2, null);
     });
 
     it('rolls back any AppUpdate by replaying from NewGameUpdate if most recent', () => {
