@@ -1,4 +1,5 @@
 import { map, merge, scan, Subject } from 'rxjs';
+import { tuple } from 'src/Foundations';
 import { SaveLoadUndo } from 'src/SaveLoadUndo';
 import { ManagedUpdates } from 'src/SaveLoadUndo/ManagedUpdate';
 
@@ -16,13 +17,13 @@ export default class UndoBuffer {
             scan(([bufferSize], action) => {
                 switch (action) {
                     case 'flush':
-                        return [0, bufferSize] as [number, number];
+                        return tuple(0, bufferSize);
                     case 'increment':
-                        return [bufferSize + 1, 0] as [number, number];
+                        return tuple(bufferSize + 1, 0);
                     case 'clear':
-                        return [0, 0] as [number, number];
+                        return tuple(0, 0);
                 }
-            }, [0, 0] as [number, number])
+            }, tuple(0, 0))
         );
 
         state$.subscribe(([, flushLength]) => {

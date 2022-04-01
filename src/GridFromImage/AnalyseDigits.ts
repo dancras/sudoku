@@ -1,4 +1,5 @@
 import KNN from 'ml-knn';
+import { tuple } from 'src/Foundations';
 import { GridFromImageProgress } from 'src/GridFromImage';
 import { createCanvas } from 'src/GridFromImage/Util';
 
@@ -51,12 +52,12 @@ export async function analyseDigits(
 
     await onProgress({ step: 'Generating Training Set' });
     digitCanvases = digitCanvases.flatMap(([originalCanvas, i]) => [
-        [originalCanvas, i],
-        [shiftCanvas(originalCanvas, 1, 0), i],
-        [shiftCanvas(originalCanvas, -1, 0), i],
-        [shiftCanvas(originalCanvas, 0, 1), i],
-        [shiftCanvas(originalCanvas, 0, -1), i]
-    ] as [HTMLCanvasElement, number][]);
+        tuple(originalCanvas, i),
+        tuple(shiftCanvas(originalCanvas, 1, 0), i),
+        tuple(shiftCanvas(originalCanvas, -1, 0), i),
+        tuple(shiftCanvas(originalCanvas, 0, 1), i),
+        tuple(shiftCanvas(originalCanvas, 0, -1), i)
+    ]);
 
     // renderTrainingSet(digitCanvases);
 

@@ -1,3 +1,4 @@
+import { tuple } from 'src/Foundations';
 import { GridFromImageProgress } from 'src/GridFromImage';
 import { applyTransform, getNormalizationCoefficients, QuadPoints } from 'src/GridFromImage/change-perspective';
 import { findConnectedPixels, findCorners, findExtremities } from 'src/GridFromImage/EasyAnalyse';
@@ -99,18 +100,18 @@ export async function extractGrid(
         heightSum += digitCanvas.h;
 
         const cellNumber = row * 9 + col;
-        return [cellNumber, digitCanvas] as [number, EasyCanvas];
+        return tuple(cellNumber, digitCanvas);
     });
 
     await onProgress({ step: 'Padding Canvases' });
     const meanHeight = Math.round(heightSum / digitGroups.length);
 
-    const extractDigits = digitCanvases.map(([cellNumber, digitCanvas]) => [
+    const extractDigits = digitCanvases.map(([cellNumber, digitCanvas]) => tuple(
         cellNumber,
         padCanvas(createCanvas, digitCanvas, maxDigitWidth, maxDigitHeight)
-    ] as [number, EasyCanvas]);
+    ));
 
-    return [extractDigits, maxDigitWidth, maxDigitHeight, meanHeight] as [[number, EasyCanvas][], number, number, number];
+    return tuple(extractDigits, maxDigitWidth, maxDigitHeight, meanHeight);
 }
 
 function createPerspectiveTransformer(src: QuadPoints, dest: QuadPoints) {
