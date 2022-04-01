@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { peek, Writeable } from 'src/RxReact';
+import { UndoBuffer } from 'src/SaveLoadUndo';
+import { createMockUndoBuffer } from 'src/SaveLoadUndo/Mock';
 import { CandidateColor, SudokuCell, ValidNumber } from 'src/Sudoku';
 import { SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
@@ -16,6 +18,7 @@ let currentColor$: Subject<CandidateColor>;
 let sudokuGrid: Writeable<SudokuCell>[];
 let status$: Subject<SudokuGameStatus>;
 let contextValue: Writeable<ContextValue<typeof SudokuGridContext>>;
+let undoBuffer: Writeable<UndoBuffer>;
 
 function setIsLocked(i: number, value: boolean) {
     const game = peek(contextValue.app.game$);
@@ -41,6 +44,7 @@ beforeEach(() => {
     selectedNumber$ = new BehaviorSubject<ValidNumber>(1);
     currentColor$ = new BehaviorSubject<CandidateColor>('a');
     status$ = new BehaviorSubject<SudokuGameStatus>(SudokuGameStatus.Solving);
+    undoBuffer = createMockUndoBuffer();
 
     const app = Object.assign(createMockSudokuApp(), {
         status$
@@ -51,7 +55,8 @@ beforeEach(() => {
     [TestProvider] = createTestProvider(SudokuGridContext, contextValue = {
         selectedNumber$,
         currentColor$,
-        app
+        app,
+        undoBuffer
     });
 
     render(

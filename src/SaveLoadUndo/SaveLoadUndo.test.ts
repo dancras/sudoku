@@ -139,7 +139,7 @@ describe('createSaveLoadUndo()', () => {
             ]]
         });
 
-        const saveLoadUndo = createSaveLoadUndo(mockStorage, app);
+        const [saveLoadUndo] = createSaveLoadUndo(mockStorage, app);
         saveLoadUndo.setup();
 
         saveLoadUndo.redo();

@@ -1,5 +1,23 @@
+import { Writeable } from 'src/RxReact';
+import { SaveLoadUndo } from 'src/SaveLoadUndo';
 import { ManagedUpdate } from 'src/SaveLoadUndo/ManagedUpdate';
+import UndoBuffer from 'src/SaveLoadUndo/UndoBuffer';
 import { CandidateColor, SudokuGameContents, ValidNumber } from 'src/Sudoku';
+
+export function createMockSaveLoadUndo(): Writeable<SaveLoadUndo> {
+    return {
+        undo: vi.fn(),
+        redo: vi.fn(),
+        setup: vi.fn()
+    };
+}
+
+export function createMockUndoBuffer(): Writeable<UndoBuffer> {
+    return {
+        flush: vi.fn(),
+        clear: vi.fn()
+    };
+}
 
 export function createCellUpdate(cellIndex: number, contents: ValidNumber | null): ManagedUpdate {
     return {

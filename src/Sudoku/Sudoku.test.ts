@@ -114,6 +114,13 @@ describe('SudokuCell', () => {
         expect(peek(sudokuCell.candidates[1])).toEqual(['b', true]);
     });
 
+    test('toggleCandidates does nothing if the cell already has contents', () => {
+        sudokuCell.toggleCandidate(1, 'a');
+        sudokuCell.toggleContents(1);
+        sudokuCell.toggleCandidate(1, 'b');
+        expect(peek(sudokuCell.candidates[1])).toEqual(['a', false]);
+    });
+
     test('isLocked is passed to constructor', () => {
         const sudokuCell = new SudokuCell(gridCell, [gridSlice], true);
         expect(sudokuCell.isLocked).toEqual(true);

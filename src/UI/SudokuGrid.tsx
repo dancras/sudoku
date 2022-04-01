@@ -1,6 +1,7 @@
-import { useContext, useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { combineLatest, map, Observable } from 'rxjs';
 import { defineDependencies, useEventCallback, useObservable } from 'src/RxReact';
+import { UndoBuffer } from 'src/SaveLoadUndo';
 import { CandidateColor, CandidateStatus, MapValidsNumberTo, SudokuCell, ValidNumber, VALID_NUMBERS } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import 'src/UI/SudokuGrid.css';
@@ -8,7 +9,8 @@ import 'src/UI/SudokuGrid.css';
 export const SudokuGridContext = defineDependencies<{
     selectedNumber$: Observable<ValidNumber>,
     currentColor$: Observable<CandidateColor>,
-    app: SudokuApp
+    app: SudokuApp,
+    undoBuffer: UndoBuffer
 }>();
 
 enum CellEvents {
@@ -22,7 +24,7 @@ type Highlights = {
 }
 
 export default function SudokuGrid() {
-    const { selectedNumber$, currentColor$,  app } = useContext(SudokuGridContext);
+    const { selectedNumber$, currentColor$, app, undoBuffer } = useContext(SudokuGridContext);
     const game = useObservable(app.game$);
 
     const highlights: Highlights[] = useMemo(() => game.cells.map(cell => ({
@@ -39,24 +41,39 @@ export default function SudokuGrid() {
     return (
         <div className="SudokuGrid" data-testid="sudoku-grid">
             {game.cells.map((cell, i) =>
-                <Cell key={i} cell={cell} selectedNumber$={selectedNumber$} currentColor$={currentColor$} app={app} highlights={highlights[i]} />
+                <Cell key={i}
+                      cell={cell}
+                      selectedNumber$={selectedNumber$}
+                      currentColor$={currentColor$}
+                      app={app}
+                      highlights={highlights[i]}
+                      undoBuffer={undoBuffer}
+                />
             )}
         </div>
     );
 }
 
-function Cell({ cell, selectedNumber$, currentColor$, app, highlights }: {
+function Cell({ cell, selectedNumber$, currentColor$, app, highlights, undoBuffer }: {
     cell: SudokuCell,
     selectedNumber$: Observable<ValidNumber>,
     currentColor$: Observable<CandidateColor>,
     app: SudokuApp,
-    highlights: Highlights
+    highlights: Highlights,
+    undoBuffer: UndoBuffer
 }) {
 
     const [contents, isValid] = useObservable(cell.contents$) || [null, true];
     const isHighlighted = useObservable(highlights.highlightCell$);
 
     const notifies = useEventCallback((cellEvent: CellEvents, selectedNumber: ValidNumber, currentColor: CandidateColor, status) => {
+
+        if (cellEvent === CellEvents.Click) {
+            undoBuffer.clear();
+        } else {
+            undoBuffer.flush();
+        }
+
         if (cell.isLocked) {
             return;
         } else if (
@@ -71,7 +88,7 @@ function Cell({ cell, selectedNumber$, currentColor$, app, highlights }: {
 
     return (
         <div className={`--Cell ${cell.isLocked ? '-Locked' : ''} ${isHighlighted ? '-Highlight' : ''} ${contents ? `-ShowingContents ${isValid ? '-Valid' : '-Invalid'}` : '-ShowingCandidates'}`}
-             onClick={notifies(CellEvents.Click)}
+             onClick={ignoreMultiClick(notifies(CellEvents.Click))}
              onDoubleClick={notifies(CellEvents.DblClick)}
         >
             <div className="--Candidates">
@@ -94,4 +111,12 @@ function CellCandidate({ candidate, status$, isHighlighted$ }: { candidate: numb
              data-candidate-color={status?.[0]}
         >{ status !== null ? candidate : ' ' }</div>
     );
+}
+
+function ignoreMultiClick(wrappedFn: () => void) {
+    return (event: React.MouseEvent) => {
+        if (event.detail === 1) {
+            wrappedFn();
+        }
+    };
 }

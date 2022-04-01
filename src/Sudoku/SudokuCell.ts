@@ -50,6 +50,10 @@ export default class SudokuCell {
     }
 
     toggleCandidate(candidate: ValidNumber, color: CandidateColor | null) {
+        if (this.gridCell.contents$.value !== null) {
+            return;
+        }
+
         this.gridCell.candidates[candidate].next(
             this.gridCell.candidates[candidate].value === color ? null : color
         );

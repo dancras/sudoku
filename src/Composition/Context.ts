@@ -1,7 +1,7 @@
 import createPersistence from '@vitorluizc/persistence';
 import { BehaviorSubject } from 'rxjs';
 import { OnboardingStorageSchema } from 'src/Onboarding';
-import { createSaveLoadUndo, StorageSchema } from 'src/SaveLoadUndo';
+import { createSaveLoadUndo, createUndoBuffer, StorageSchema } from 'src/SaveLoadUndo';
 import { CandidateColor, ValidNumber } from 'src/Sudoku';
 import { createSudokuApp } from 'src/SudokuApp';
 import { createMessagesModel } from 'src/UI/Messages';
@@ -12,7 +12,8 @@ export function createCompositionContext() {
     const app = createSudokuApp();
     const saveLoadUndoStorage = createPersistence<StorageSchema>('SaveLoadUndo');
     const onboardingStorage = createPersistence<OnboardingStorageSchema>('Onboarding');
-    const saveLoadUndo = createSaveLoadUndo(saveLoadUndoStorage, app);
+    const [saveLoadUndo, managedUpdates$] = createSaveLoadUndo(saveLoadUndoStorage, app);
+    const undoBuffer = createUndoBuffer(saveLoadUndo, managedUpdates$);
     const { messages$, message$, dismiss$ } = createMessagesModel();
 
     return {
@@ -21,6 +22,7 @@ export function createCompositionContext() {
         app,
         saveLoadUndoStorage,
         saveLoadUndo,
+        undoBuffer,
         onboardingStorage,
         messages$,
         message$,
