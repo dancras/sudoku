@@ -27,7 +27,7 @@ beforeEach(() => {
                 data[key] = value;
             },
             removeItem(key: string) {
-                data[key];
+                delete data[key];
             }
         }
     });

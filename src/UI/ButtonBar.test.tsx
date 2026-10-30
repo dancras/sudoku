@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
 import { MockFunction, peek, Writeable } from 'src/RxReact';
-import { SudokuGame } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { createTestProvider } from 'src/Test/TestContext';

@@ -66,6 +66,7 @@ export function useEventCallback<T, A extends any[]>(
     read: { [K in keyof A] : ObservableInput<A[K]> },
     inputs: DependencyList = []
 ) {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const events = useMemo(() => new Subject<T>(), inputs);
 
     useEffect(() => {
@@ -75,6 +76,7 @@ export function useEventCallback<T, A extends any[]>(
             });
 
         return () => sub.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, inputs);
 
     return (event: T) => () => events.next(event);

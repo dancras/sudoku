@@ -360,7 +360,7 @@ export function getNormalizationCoefficients(
 
     try {
         matC = inv(dotMMsmall(transpose(matA), matA));
-    } catch (e) {
+    } catch {
         return [1, 0, 0, 0, 1, 0, 0, 0];
     }
 

@@ -43,7 +43,7 @@ export default function ButtonBar() {
             { !showShareButton &&
                 <>
                     <input hidden type="file" accept="image/*" onChange={handleImageUpload} />
-                    <button onClick={(event) => (event.currentTarget.previousSibling as any).click()}><IoCameraOutline /></button>
+                    <button onClick={(event) => (event.currentTarget.previousSibling as HTMLInputElement).click()}><IoCameraOutline /></button>
                 </>
             }
             { showShareButton && <button onClick={() => share(game)} data-testid="button-bar-share"><IoShareOutline /></button> }

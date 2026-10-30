@@ -1,4 +1,3 @@
-/* eslint @typescript-eslint/indent: ["error", 2] */
 /// <reference types="vitest" />
 import react from '@vitejs/plugin-react';
 import path from 'path';

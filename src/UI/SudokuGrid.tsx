@@ -36,7 +36,7 @@ export default function SudokuGrid() {
                 map(([candidateStatus, selectedNumber]) => candidateStatus !== null && n === selectedNumber)
             )
         }), {} as MapValidsNumberTo<Observable<boolean>>)
-    })), [game.cells]);
+    })), [game.cells, selectedNumber$]);
 
     return (
         <div className="SudokuGrid" data-testid="sudoku-grid">

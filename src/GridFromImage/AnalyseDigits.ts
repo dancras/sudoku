@@ -119,7 +119,7 @@ function calculateFontSize(ctx: CanvasRenderingContext2D, style: string, font: s
 }
 
 // For debugging
-function renderTrainingSet(digitCanvases: [HTMLCanvasElement, number][]) {
+export function renderTrainingSet(digitCanvases: [HTMLCanvasElement, number][]) {
     const width = digitCanvases[0][0].width;
     const height = digitCanvases[0][0].height;
 
