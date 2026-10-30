@@ -1,5 +1,5 @@
 import { Persistence } from '@vitorluizc/persistence';
-import { ReactFragment } from 'react';
+import { ReactNode } from 'react';
 import { debounceTime, map, merge, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { SudokuGameUpdate } from 'src/Sudoku';
 import { SudokuApp, SudokuAppUpdate, SudokuGameStatus } from 'src/SudokuApp';
@@ -31,7 +31,7 @@ export function setupOnboarding(
 
     const seen: Record<string, boolean> = storage.get()?.seen || {};
 
-    function addMessage(key: string, body: ReactFragment, arrow?: MessageArrow) {
+    function addMessage(key: string, body: ReactNode, arrow?: MessageArrow) {
         if (!seen[key]) {
             messages$.next({
                 body,

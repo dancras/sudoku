@@ -1,5 +1,4 @@
-import NoSleep from 'nosleep.js';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { CompositionRoot, createCompositionContext } from 'src/Composition';
 import { setupOnboarding } from 'src/Onboarding';
 import { loadSharedGame } from 'src/Share/FragmentShare';
@@ -9,18 +8,24 @@ import Messages from 'src/UI/Messages';
 import NumberPicker from 'src/UI/NumberPicker';
 import SudokuGrid from 'src/UI/SudokuGrid';
 
-let noSleep = {
-    enable() {
-        // Do nothing in tests
-    }
-};
+let wakeLock: WakeLockSentinel | null = null;
+let wakeLockEnabled = false;
 
-if (!navigator.userAgent.includes('jsdom')) {
-    noSleep = new NoSleep();
+async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                wakeLock = null;
+            });
+        } catch {
+            // Wake lock request failed or denied (e.g. low battery, background tab)
+        }
+    }
 }
 
 function AppMain() {
-    const context = createCompositionContext();
+    const context = useMemo(() => createCompositionContext(), []);
     const {
         saveLoadUndo,
         onboardingStorage,
@@ -32,10 +37,27 @@ function AppMain() {
         saveLoadUndo.setup();
         setupOnboarding(onboardingStorage, messages$, app);
         loadSharedGame(app);
-    }, []);
+
+        const handleVisibilityChange = async () => {
+            if (wakeLockEnabled && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (wakeLock) {
+                wakeLock.release().catch(() => {});
+            }
+        };
+    }, [app, messages$, onboardingStorage, saveLoadUndo]);
 
     function handleClick() {
-        noSleep.enable();
+        wakeLockEnabled = true;
+        if (!wakeLock) {
+            requestWakeLock();
+        }
     }
 
     return (

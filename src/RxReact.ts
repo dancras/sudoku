@@ -1,14 +1,27 @@
-import { Context, createContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Context, createContext, DependencyList, useEffect, useMemo, useRef, useState } from 'react';
 import { asyncScheduler, firstValueFrom, Observable, ObservableInput, observeOn, of, Subject, withLatestFrom } from 'rxjs';
-import { SpyInstanceFn } from 'vitest';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export type MockFunction<A extends any[] = any[], R = any> = ((...args: A) => R) & {
+    mock: {
+        calls: any[];
+        results: any[];
+        invocationCallOrder: number[];
+        [key: string]: any;
+    };
+    mockClear: () => any;
+    mockReset: () => any;
+    mockImplementation: (fn: any) => any;
+    mockReturnValue: (val: any) => any;
+    [key: string]: any;
+};
+
 export type Writeable<T> =
     (T extends Subject<infer C> ? Subject<Writeable<C>> :
         (T extends Observable<infer C> ? Subject<Writeable<C>> :
             (T extends [unknown?, unknown?, unknown?, unknown?, unknown?] ? { [K in keyof T]: Writeable<T[K]> } :
                 (T extends Array<infer C> ? Array<Writeable<C>> :
-                    (T extends (...args: infer A) => infer R ? SpyInstanceFn<A, R> :
+                    (T extends (...args: infer A) => infer R ? MockFunction<A, R> :
                         (T extends { [K in keyof T]: unknown } ? { [K in keyof T]: Writeable<T[K]> } :
                             T
                         )
@@ -51,7 +64,7 @@ export function prewarm<T>() {
 export function useEventCallback<T, A extends any[]>(
     callback: (event: T, ...args: A) => void,
     read: { [K in keyof A] : ObservableInput<A[K]> },
-    inputs?: unknown[]
+    inputs: DependencyList = []
 ) {
     const events = useMemo(() => new Subject<T>(), inputs);
 
