@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { peek, Writeable } from 'src/RxReact';
 import { UndoBuffer } from 'src/SaveLoadUndo';
@@ -11,7 +11,7 @@ import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { ContextValue, createTestProvider } from 'src/Test/TestContext';
 import SudokuGrid, { SudokuGridContext } from 'src/UI/SudokuGrid';
 
-let TestProvider: FunctionComponent;
+let TestProvider: FunctionComponent<PropsWithChildren>;
 
 let selectedNumber$: Subject<ValidNumber>;
 let currentColor$: Subject<CandidateColor>;
@@ -21,13 +21,15 @@ let contextValue: Writeable<ContextValue<typeof SudokuGridContext>>;
 let undoBuffer: Writeable<UndoBuffer>;
 
 function setIsLocked(i: number, value: boolean) {
-    const game = peek(contextValue.app.game$);
+    act(() => {
+        const game = peek(contextValue.app.game$);
 
-    game.cells[i] = { ...game.cells[i],
-        isLocked: value
-    };
-    game.cells = [...game.cells];
-    contextValue.app.game$.next({ ...game });
+        game.cells[i] = { ...game.cells[i],
+            isLocked: value
+        };
+        game.cells = [...game.cells];
+        contextValue.app.game$.next({ ...game });
+    });
 }
 
 beforeEach(() => {
@@ -92,14 +94,14 @@ test('cell has -ShowingContents class when it has contents to show', () => {
     expect(firstCell?.className).toContain('-ShowingContents');
 });
 
-test('dispatches toggleContents on double click', () => {
+test('dispatches toggleContents on double click', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     act(() => {
         selectedNumber$.next(4);
     });
 
-    firstCell && userEvent.dblClick(firstCell);
+    if (firstCell) await userEvent.dblClick(firstCell);
 
     expect(sudokuGrid[0].toggleContents).toHaveBeenCalledWith(4);
 });
@@ -185,50 +187,54 @@ test('candidate has -Valid or -Invalid class depending on state', () => {
     expect(candidateElement?.className).not.toContain('-Valid');
 });
 
-test('dispatches toggleCandidate on single click', () => {
+test('dispatches toggleCandidate on single click', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     selectedNumber$.next(7);
     currentColor$.next('b');
 
-    firstCell && userEvent.click(firstCell);
+    if (firstCell) await userEvent.click(firstCell);
 
     expect(sudokuGrid[0].toggleCandidate).toHaveBeenCalledWith(7, 'b');
 });
 
-test('cell single click dispatches toggleContents when SudokuGameStatus.Creating', () => {
+test('cell single click dispatches toggleContents when SudokuGameStatus.Creating', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     selectedNumber$.next(7);
 
     status$.next(SudokuGameStatus.Creating);
 
-    firstCell && userEvent.click(firstCell);
+    if (firstCell) await userEvent.click(firstCell);
 
     expect(sudokuGrid[0].toggleContents).toHaveBeenCalledWith(7);
 });
 
-test('cell clicks disabled when SudokuGameStatus.Solved', () => {
+test('cell clicks disabled when SudokuGameStatus.Solved', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     selectedNumber$.next(7);
 
     status$.next(SudokuGameStatus.Solved);
 
-    firstCell && userEvent.click(firstCell);
-    firstCell && userEvent.dblClick(firstCell);
+    if (firstCell) {
+        await userEvent.click(firstCell);
+        await userEvent.dblClick(firstCell);
+    }
 
     expect(sudokuGrid[0].toggleContents).not.toHaveBeenCalled();
     expect(sudokuGrid[0].toggleCandidate).not.toHaveBeenCalled();
 });
 
-test('cell clicks disabled when cell is locked', () => {
+test('cell clicks disabled when cell is locked', async () => {
     const firstCell = screen.getByTestId('sudoku-grid').firstElementChild;
 
     setIsLocked(0, true);
 
-    firstCell && userEvent.click(firstCell);
-    firstCell && userEvent.dblClick(firstCell);
+    if (firstCell) {
+        await userEvent.click(firstCell);
+        await userEvent.dblClick(firstCell);
+    }
 
     expect(sudokuGrid[0].toggleContents).not.toHaveBeenCalled();
     expect(sudokuGrid[0].toggleCandidate).not.toHaveBeenCalled();

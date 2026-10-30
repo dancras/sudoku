@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react';
-import { Context, PropsWithChildren, useContext, useState } from 'react';
+import { Context, FunctionComponent, PropsWithChildren, useContext, useState } from 'react';
 import { tuple } from 'src/Foundations';
 
 export type ContextValue<T> = T extends Context<infer V> ? V : never;
@@ -14,7 +14,7 @@ export function createTestProvider<T>(Context: Context<T>, defaultValue?: T) {
         });
     }
 
-    function TestProvider({ children }: PropsWithChildren<unknown>) {
+    const TestProvider: FunctionComponent<PropsWithChildren> = ({ children }: PropsWithChildren) => {
         const [value, setValue] = useState<T | undefined>(defaultValue);
         setContextValueReference = setValue;
         return !value ? <></> : (
@@ -22,7 +22,7 @@ export function createTestProvider<T>(Context: Context<T>, defaultValue?: T) {
                 { children }
             </Context.Provider>
         );
-    }
+    };
 
     return tuple(TestProvider, setContextValue);
 }

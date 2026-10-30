@@ -1,21 +1,21 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 import { Subject } from 'rxjs';
-import { peek, Writeable } from 'src/RxReact';
+import { MockFunction, peek, Writeable } from 'src/RxReact';
 import { SudokuGame } from 'src/Sudoku';
 import { SudokuApp, SudokuGameStatus } from 'src/SudokuApp';
 import { createMockSudokuApp } from 'src/SudokuApp/Mocks';
 import { createTestProvider } from 'src/Test/TestContext';
 import ButtonBar, { ButtonBarContext } from 'src/UI/ButtonBar';
-import { SpyInstanceFn } from 'vitest';
+import { Mock } from 'vitest';
 
-let TestProvider: FunctionComponent;
+let TestProvider: FunctionComponent<PropsWithChildren>;
 let mockApp: Writeable<SudokuApp>;
-let startGameSpy: SpyInstanceFn<[], void>;
+let startGameSpy: MockFunction<[], void>;
 let gameStatus$: Subject<SudokuGameStatus>;
 let gameCanStart$: Subject<boolean>;
-let shareSpy: SpyInstanceFn<[SudokuGame], void>;
+let shareSpy: Mock;
 
 function getStartButton() {
     return screen.getByTestId('button-bar-start');
@@ -81,12 +81,12 @@ describe('Start Button', () => {
         expect(getStartButton()).toBeDisabled();
     });
 
-    it('it calls startGame when Start clicked and status is Creating', () => {
+    it('it calls startGame when Start clicked and status is Creating', async () => {
         act(() => {
             gameCanStart$.next(true);
         });
 
-        userEvent.click(getStartButton());
+        await userEvent.click(getStartButton());
 
         expect(startGameSpy).toHaveBeenCalled();
     });
@@ -105,12 +105,12 @@ describe('Start Button', () => {
 });
 
 describe('New Game Button', () => {
-    it('calls newGame when New Game button clicked', () => {
+    it('calls newGame when New Game button clicked', async () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
         });
 
-        userEvent.click(getNewGameButton());
+        await userEvent.click(getNewGameButton());
         expect(mockApp.newGame).toHaveBeenCalled();
     });
 
@@ -133,13 +133,13 @@ describe('New Game Button', () => {
 });
 
 describe('Reset Game Button', () => {
-    it('calls resetGame when Reset Game button clicked', () => {
+    it('calls resetGame when Reset Game button clicked', async () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
             mockApp.canReset$.next(true);
         });
 
-        userEvent.click(getResetGameButton());
+        await userEvent.click(getResetGameButton());
         expect(mockApp.resetGame).toHaveBeenCalled();
     });
 
@@ -157,12 +157,12 @@ describe('Reset Game Button', () => {
 });
 
 describe('Share Button', () => {
-    it('calls shareGame when clicked', () => {
+    it('calls shareGame when clicked', async () => {
         act(() => {
             gameStatus$.next(SudokuGameStatus.Solving);
         });
 
-        userEvent.click(getShareButton());
+        await userEvent.click(getShareButton());
         expect(shareSpy).toHaveBeenCalledWith(peek(mockApp.game$));
         expect(getShareButton()).not.toBeDisabled();
     });
